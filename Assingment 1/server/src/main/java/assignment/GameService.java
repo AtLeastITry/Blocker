@@ -25,6 +25,32 @@ public class GameService {
         reply.data = new Gson().toJson(new HostResponse(true, game, player.getMyPlayerId()));
 
         session.getBasicRemote().sendObject(reply);
+
+        Message newGameResponse = new Message();
+        newGameResponse.type = MessageType.NEW_GAME;
+        newGameResponse.sender = "Server";
+        newGameResponse.data = new Gson().toJson(new NewGameResponse(true, game.name));
+
+        for (Session userSession: users) {
+            userSession.getBasicRemote().sendObject(newGameResponse);
+        }
+    }
+
+    public void allGames(Session session, Message message) throws IOException, EncodeException {
+        List<String> gameNames = new ArrayList<>();
+
+        for (GameState game: games) {
+            gameNames.add(game.name);
+        }
+
+        Message reply = new Message();
+        reply.type = MessageType.ALL_GAMES;
+        reply.sender = "Server";
+        reply.data = new Gson().toJson(new AllGamesResponse(true, gameNames));
+
+        for (Session userSession: users) {
+            userSession.getBasicRemote().sendObject(reply);
+        }
     }
 
     public void playerMove(Session session, Message message) throws IOException, EncodeException {

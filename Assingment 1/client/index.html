@@ -30,10 +30,10 @@
                                 </div>
                                 <div v-if="showJoinOptions">
                                     <div class="form-group">
-                                        <select v-model="gameName" class="form-control">
+                                        <select v-model="chosenGame" class="form-control">
                                             <option value="null">--please select--</option>
-                                            <option v-for="game in avaliableGames" v-bind:value="game.name">
-                                                {{ game.name }}
+                                            <option v-for="game in avaliableGameNames" v-bind:value="game">
+                                                {{ game }}
                                             </option>
                                         </select>
                                     </div>

@@ -6,9 +6,11 @@ import java.util.*;
 public final class GameState {
     public static final int ROWS = 6;
     public static final int COLUMNS = 10;
+    public final String name = UUID.randomUUID().toString();
     private Set<String> _playerSessionIds;
     private int[][] _board;
     private Map<Integer, Set<InfluenceCard>> _influenceCards;
+
 
     
     public GameState() {

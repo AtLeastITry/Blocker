@@ -6,11 +6,17 @@ var app = new Vue({
         username: null,
         showJoinOptions: false,
         game: null,
-        player: null
+        player: null,
+        avaliableGameNames: [],
+        chosenGame: null
     },
     created: function() {
-      this._socket = new WebSocket("ws://localhost:8080/assignment/game");
-      this._socket.onmessage = this.onMessage;
+        this._socket = new WebSocket("ws://localhost:8080/assignment/game");
+        this._socket.onmessage = this.onMessage;
+        let self = this;
+        this._socket.onopen = function() {
+            self._socket.send(self.buildAction(window.MessageType.ALL_GAMES, null));
+        }
     },
     methods: {
         selectBlock: function(rowIndex, blockIndex) {
@@ -38,6 +44,15 @@ var app = new Vue({
                         break;
                     case window.MessageType.PLAYER_MOVE:
                         this.game = new window.game(data.game);
+                        break;
+                    case window.MessageType.PLAYER_MOVE:
+                        this.game = new window.game(data.game);
+                        break;
+                    case window.MessageType.NEW_GAME:
+                        this.avaliableGameNames.push(data.gameName);
+                        break;
+                    case window.MessageType.ALL_GAMES:
+                        this.avaliableGameNames = data.gameNames;
                         break;
                 }
             }

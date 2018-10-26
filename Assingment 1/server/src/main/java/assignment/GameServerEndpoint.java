@@ -49,6 +49,9 @@ public class GameServerEndpoint {
             case MessageType.PLAYER_MOVE:
                 _gameService.playerMove(session, message);
                 break;
+            case MessageType.ALL_GAMES:
+                _gameService.allGames(session, message);
+                break;
         }
     }
 }
