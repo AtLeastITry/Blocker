@@ -76,11 +76,11 @@ public final class GameState {
     }
 
     private Integer getStoneId(Coordinates current) {
-        if (current.getX() < 0 || current.getX() > 9) {
+        if (current.getX() < 0 || current.getX() > 5) {
             return null;
         }
 
-        if (current.getY() < 0 || current.getY() > 5) {
+        if (current.getY() < 0 || current.getY() > 9) {
             return null;
         }
 
@@ -100,7 +100,8 @@ public final class GameState {
     }
 
     private boolean validCoordinate(int playerId, Coordinates next, boolean isFirstMove, InfluenceCard card) {
-        if (getStoneId(next) != 0 && card != InfluenceCard.REPLACEMENT) {
+        Integer stoneId = getStoneId(next);
+        if (stoneId != null && stoneId != 0 && card != InfluenceCard.REPLACEMENT) {
             return false;
         }
 
@@ -108,10 +109,14 @@ public final class GameState {
             return true;
         }
 
-        boolean isDownMove = getStoneId(new Coordinates(next.getX(),next.getY() + 1)) == playerId;
-        boolean isUpMove = getStoneId(new Coordinates(next.getX(),next.getY() - 1)) == playerId;
-        boolean isLeftMove = getStoneId(new Coordinates(next.getX() - 1,next.getY())) == playerId;
-        boolean isRightMove = getStoneId(new Coordinates(next.getX() - 1,next.getY() + 1)) == playerId;
+        Integer down = getStoneId(new Coordinates(next.getX(),next.getY() + 1));
+        Integer up = getStoneId(new Coordinates(next.getX(),next.getY() - 1));
+        Integer left = getStoneId(new Coordinates(next.getX() - 1,next.getY()));
+        Integer right = getStoneId(new Coordinates(next.getX() + 1,next.getY()));
+        boolean isDownMove = down != null && down == playerId;
+        boolean isUpMove = up != null && up == playerId;
+        boolean isLeftMove = left != null && left == playerId;
+        boolean isRightMove = right != null && right == playerId;
 
         return isDownMove || isUpMove || isLeftMove || isRightMove;
     }
