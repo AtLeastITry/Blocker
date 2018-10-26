@@ -1,22 +1,15 @@
 var WebSocketMock = function() {
-    this.games = [
-        { 
-            name: "game1",
-            users: []
-        }
-    ];
+    this.games = [];
 
     this.users = [];
 
-    this.onmessage = new function(event) {
-        
-    }
+    this.onmessage = null;
 
     this.join = function(message) {
-        this.users.push(message.data.username);
+        this.users.push(message.data.player);
         for (let i = 0; i < this.games.length; i++) {
-            if(this.games[i].name == message.data.game_name) {
-                this.games[i].users.push(message.data.username);
+            if(this.games[i].name == message.data.gameName) {
+                this.games[i].users.push(message.data.player);
             }
         }
 
@@ -32,13 +25,10 @@ var WebSocketMock = function() {
     };
 
     this.host = function(message) {
-        this.users.push(message.data.username);
-        this.games.push({
-            name: "game2",
-            users: [
-                message.data.username
-            ]
-        });
+        this.users.push(message.data.player);
+        var game = new window.game();
+        game.players.push(message.data.player);
+        this.games.push(game);
 
         this.onmessage({
             msg: JSON.stringify({
@@ -52,12 +42,12 @@ var WebSocketMock = function() {
     };
 
     this.leave = function(message) {
-        this.users.splice(this.users.indexof(message.data.username), 1);
+        this.users.splice(this.users.indexOf(message.data.player), 1);
 
         for (let i = 0; i < this.games.length; i++) {
-            let index = this.games[i].users.indexof(message.data.username);
+            let index = this.games[i].players.indexOf(message.data.player);
             if (index > -1) {
-                this.games[i].users.splice(index, 1)
+                this.games[i].players.splice(index, 1)
             }
         }
 
@@ -88,3 +78,5 @@ var WebSocketMock = function() {
         }
     }
 }
+
+window.WebSocketMock = WebSocketMock;

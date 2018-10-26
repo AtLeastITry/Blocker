@@ -5,10 +5,11 @@ var app = new Vue({
         _socket: null,
         username: null,
         showJoinOptions: false,
-        gameName: null
+        gameName: null,
+        player: null
     },
     created: function() {
-      this._socket = new WebSocketMock();  
+      this._socket = new window.WebSocketMock();  
       this._socket.onmessage = this.onMessage;
     },
     computed: {
@@ -27,6 +28,7 @@ var app = new Vue({
                         break;
                     case 'join': 
                         this.playing = true;
+                        this.showJoinOptions = false;
                         break;
                     case 'leave': 
                         this.playing = false;
@@ -36,18 +38,20 @@ var app = new Vue({
             
         },
         host: function() {
-            this._socket.send(this.buildAction('host', { username: this.username }))
+            this.player = new window.player(this.username);
+            this._socket.send(this.buildAction('host', { player: this.player }))
         },
         join: function() {
+            this.player = new window.player(this.username);
             if (this.showJoinOptions) {
-                this._socket.send(this.buildAction('join', { username: this.username }))
+                this._socket.send(this.buildAction('join', { player: this.player }))
             }            
             else {
                 this.showJoinOptions = true;
             }
         },
         quit: function() {
-            this._socket.send(this.buildAction('leave', { username: this.username }))
+            this._socket.send(this.buildAction('leave', { username: this.player }))
         },
         buildAction: function(action, data) {
             return JSON.stringify( {
