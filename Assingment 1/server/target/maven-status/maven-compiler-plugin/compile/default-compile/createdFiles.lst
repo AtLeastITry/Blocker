@@ -1,0 +1,14 @@
+assignment\Player.class
+assignment\MessageEncoder.class
+assignment\GameState.class
+assignment\Message.class
+assignment\Coordinates.class
+assignment\MessageType.class
+assignment\MessageDecoder.class
+assignment\InfluenceCard.class
+assignment\Move.class
+assignment\WebSocketServer.class
+assignment\App.class
+assignment\GameClientEndpoint.class
+assignment\PlayerLogic.class
+assignment\GameServerEndpoint.class

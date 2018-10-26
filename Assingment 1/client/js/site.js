@@ -5,71 +5,60 @@ var app = new Vue({
         _socket: null,
         username: null,
         showJoinOptions: false,
-        player: null,
-        gameIndex: null,
         game: null,
-        gameName: null
+        player: null
     },
     created: function() {
-      this._socket = new window.WebSocketMock();  
+      this._socket = new WebSocket("ws://localhost:8080/assignment/game");
       this._socket.onmessage = this.onMessage;
-    },
-    computed: {
-        avaliableGames: function() {
-            return this._socket.games;
-        }
     },
     methods: {
         selectBlock: function(rowIndex, blockIndex) {
-            this._socket.send(this.buildAction('playerMove', { player: this.player, gameIndex: this.gameIndex, rowIndex: rowIndex, blockIndex: blockIndex }))
+            firstMove = new window.coordinates(rowIndex, blockIndex);
+            this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, new window.move(null, firstMove, null)))            
         },
         onMessage: function(event) {
-            let msg = JSON.parse(event.msg);
-            let data = msg.data;
+            let msg = JSON.parse(event.data);
+            let data = JSON.parse(msg.data);
             if (data.success) {
-                switch(data.type) {
-                    case 'host': 
-                        this.gameIndex = data.gameIndex;
-                        this.game = data.game;
+                switch(msg.type) {
+                    case window.MessageType.HOST: 
+                        this.game = new window.game(data.game);
+                        this.player = new window.player(this.username, data.playerId);
                         this.playing = true;
                         break;
-                    case 'join': 
-                        this.gameIndex = data.gameIndex;
-                        this.game = data.game;
+                    case window.MessageType.JOIN: 
+                        this.game = new window.game(data.game);
                         this.playing = true;
+                        this.player = new window.player(this.username, data.playerId);
                         this.showJoinOptions = false;
                         break;
-                    case 'leave': 
+                    case window.MessageType.LEAVE: 
                         this.playing = false;
                         break;
-                    case 'playerMove':
-                        this.game = data.game;
+                    case window.MessageType.PLAYER_MOVE:
+                        this.game = new window.game(data.game);
                         break;
                 }
             }
             
         },
         host: function() {
-            this.player = new window.player(this.username);
-            this._socket.send(this.buildAction('host', { player: this.player }))
+            this._socket.send(this.buildAction(window.MessageType.HOST, null))
         },
         join: function() {
-            this.player = new window.player(this.username);
             if (this.showJoinOptions) {
-                this._socket.send(this.buildAction('join', { player: this.player }))
+                
             }            
             else {
                 this.showJoinOptions = true;
             }
         },
         quit: function() {
-            this._socket.send(this.buildAction('leave', { username: this.player }))
+            
         },
-        buildAction: function(action, data) {
-            return JSON.stringify( {
-                action: action,
-                data: data
-            })
+        buildAction: function(type, data) {
+            return JSON.stringify(new window.Message(this.username, type, data));
         }
     }
   })

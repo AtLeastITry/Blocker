@@ -1,5 +1,4 @@
-var player = function(username) {
-    this.name = username;
-};
-
-window.player = player;
+window.player = function(username, id) {
+    this.username = username;
+    this.id = id;
+}

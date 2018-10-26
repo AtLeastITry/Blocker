@@ -1,15 +1,18 @@
-var game = function() {
-    this.name = window.utils.GUID();
-    this.players = [];
-    this.state = [];
+window.game = function(game) {
+    this.board = [];
+    this.influenceCards = game._influenceCards;
 
-    for (let i = 0; i < 6; i++) {
-        var temp = [];
-        for (let j = 0; j < 12; j++) {
-            temp.push(new window.block());
+    for (let i = 0; i < game._board.length; i++) {
+        const row = [];
+        
+        for (let j = 0; j < game._board[i].length; j++) {
+            row.push(new window.block(game._board[i][j]));
         }
-        this.state.push(temp);
-    }
-};
 
-window.game = game;
+        this.board.push(row);
+    }
+
+    this.getInfluenceCards = function(playerId) {
+
+    }
+}
