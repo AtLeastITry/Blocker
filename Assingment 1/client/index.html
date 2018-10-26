@@ -5,6 +5,7 @@
         <title>board game</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
         <link href="css/site.css" rel="stylesheet">
     </head>
 
@@ -12,7 +13,7 @@
 
         <main id="app">
             <div class="container" style="height: 100vh;">
-                <div class="row h-100 justify-content-center align-items-center" v-show="!playing"  style="display: none;">
+                <div class="row h-100 justify-content-center align-items-center" v-if="!playing">
                     <div class="col-6">
                         <div class="card">
                             <div class="card-body">
@@ -27,7 +28,7 @@
                                         <button v-on:click="join" class="btn btn-block btn-primary">Join game</button>
                                     </div>
                                 </div>
-                                <div v-show="showJoinOptions"  style="display: none;">
+                                <div v-if="showJoinOptions">
                                     <div class="form-group">
                                         <select v-model="gameName" class="form-control">
                                             <option value="null">--please select--</option>
@@ -44,11 +45,76 @@
                         </div>
                     </div>   
                 </div>
-                <div class="row" v-show="playing"  style="display: none;">
+                <div v-if="playing">      
+                    <div class="row my-4">
                         <div class="col">
-                            <button v-on:click="quit" class="btn btn-primary">Quit</button>
+                            Players: 1
+                        </div>
+                        <div class="col">
+                            Bots: 0
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-block btn-primary">Add bot</button>
+                        </div>
+                        <div class="col">
+                            <button v-on:click="quit" class="btn btn-block btn-primary">Quit</button>
                         </div>
                     </div>
+                    <div class="row mb-4">
+                        <div class="col">
+                            <div class="row" v-for="(row, rowIndex) in game.state" :key="rowIndex">
+                                <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
+                                    <div v-bind:class="{ selected: block.selected }" @click="selectBlock(rowIndex, blockIndex)"></div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col p-0">
+                            <div id="powerup-accordian">
+                                <div class="card bg-light">
+                                    <div class="card-header bg-primary" id="powerups-heading" data-toggle="collapse" data-target="#powerups" aria-expanded="true" aria-controls="powerups">
+                                        <h5 class="mb-0 text-white">
+                                                Powerups
+                                        </h5>
+                                    </div>
+                                
+                                    <div id="powerups" class="collapse show" aria-labelledby="powerups-heading" data-parent="#powerup-accordian">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="powerup bg-success">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-dice-two"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="powerup bg-success">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-expand-arrows-alt"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="powerup bg-success">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-exchange-alt"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>             
+                </div>
             </div>
 
 

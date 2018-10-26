@@ -7,9 +7,13 @@ var WebSocketMock = function() {
 
     this.join = function(message) {
         this.users.push(message.data.player);
+        let gameIndex = null;
+        let tempGame = null;
         for (let i = 0; i < this.games.length; i++) {
             if(this.games[i].name == message.data.gameName) {
                 this.games[i].users.push(message.data.player);
+                gameIndex = [i];
+                tempGame = this.games[i];
             }
         }
 
@@ -18,11 +22,27 @@ var WebSocketMock = function() {
                 data: {
                     success: true,
                     date: new Date(),
-                    type: 'join'
+                    type: 'join',
+                    gameIndex: gameIndex,
+                    game: tempGame
                 }
             }),
         });
     };
+
+    this.playerMove = function(message) {
+        this.games[message.data.gameIndex].state[message.data.rowIndex][message.data.blockIndex].select(message.data.player);
+        this.onmessage({
+            msg: JSON.stringify({
+                data: {
+                    success: true,
+                    date: new Date(),
+                    type: 'playerMove',
+                    game: this.games[message.data.gameIndex]
+                }
+            }),
+        });
+    }
 
     this.host = function(message) {
         this.users.push(message.data.player);
@@ -30,12 +50,21 @@ var WebSocketMock = function() {
         game.players.push(message.data.player);
         this.games.push(game);
 
+        let gameIndex = null;
+        for (let i = 0; i < this.games.length; i++) {
+            if (this.games[i].name == game.name) {
+                gameIndex = i;
+            }
+        }
+
         this.onmessage({
             msg: JSON.stringify({
                 data: {
                     success: true,
                     date: new Date(),
-                    type: 'host'
+                    type: 'host',
+                    gameIndex: gameIndex,
+                    game: game
                 }
             }),
         });
@@ -73,6 +102,9 @@ var WebSocketMock = function() {
                 break;
             case 'leave':
                 this.leave(data);
+                break;
+            case 'playerMove':
+                this.playerMove(data);
                 break;
 
         }

@@ -3,7 +3,10 @@ var block = function() {
 
     this.select = function(player) {
         this.ownedBy = player;
+        this.selected = !this.selected;
     }
+
+    this.selected = false;
 }
 
 window.block = block;

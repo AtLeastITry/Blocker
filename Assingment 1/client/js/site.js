@@ -5,8 +5,10 @@ var app = new Vue({
         _socket: null,
         username: null,
         showJoinOptions: false,
-        gameName: null,
-        player: null
+        player: null,
+        gameIndex: null,
+        game: null,
+        gameName: null
     },
     created: function() {
       this._socket = new window.WebSocketMock();  
@@ -18,20 +20,30 @@ var app = new Vue({
         }
     },
     methods: {
+        selectBlock: function(rowIndex, blockIndex) {
+            this._socket.send(this.buildAction('playerMove', { player: this.player, gameIndex: this.gameIndex, rowIndex: rowIndex, blockIndex: blockIndex }))
+        },
         onMessage: function(event) {
             let msg = JSON.parse(event.msg);
             let data = msg.data;
             if (data.success) {
                 switch(data.type) {
                     case 'host': 
+                        this.gameIndex = data.gameIndex;
+                        this.game = data.game;
                         this.playing = true;
                         break;
                     case 'join': 
+                        this.gameIndex = data.gameIndex;
+                        this.game = data.game;
                         this.playing = true;
                         this.showJoinOptions = false;
                         break;
                     case 'leave': 
                         this.playing = false;
+                        break;
+                    case 'playerMove':
+                        this.game = data.game;
                         break;
                 }
             }

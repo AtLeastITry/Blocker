@@ -1,0 +1,54 @@
+.game-block {
+    margin: 0.05rem;
+}
+
+.game-block div {
+    display: block;
+    padding-top: 100%;
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,.17);
+    border-radius: 8px;
+}
+
+.game-block div:hover,
+.game-block div.selected {
+    background: #e6e6e6;
+}
+
+.powerup {
+    position: relative;
+    border-radius: 100%;
+    max-width: 65px;
+    display: block;
+    margin: auto;
+}
+
+
+.powerup.selected,
+.powerup:hover {
+    opacity: 0.5;
+}
+
+.powerup .content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.powerup .content .title {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+}
+
+.powerup:after {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+#powerup-accordian .card-header {
+    cursor: pointer;
+}
