@@ -21,7 +21,9 @@ var app = new Vue({
     methods: {
         selectBlock: function(rowIndex, blockIndex) {
             firstMove = new window.coordinates(rowIndex, blockIndex);
-            this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, new window.move(null, firstMove, null)))            
+            let move = new window.move(null, firstMove, null);
+            let playerMoveRequest = new window.playerMoveRequest(this.game.gameName, move);
+            this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, playerMoveRequest))            
         },
         onMessage: function(event) {
             let msg = JSON.parse(event.data);
@@ -43,9 +45,7 @@ var app = new Vue({
                         this.playing = false;
                         break;
                     case window.MessageType.PLAYER_MOVE:
-                        this.game = new window.game(data.game);
-                        break;
-                    case window.MessageType.PLAYER_MOVE:
+                    case window.MessageType.START:
                         this.game = new window.game(data.game);
                         break;
                     case window.MessageType.NEW_GAME:
@@ -61,9 +61,12 @@ var app = new Vue({
         host: function() {
             this._socket.send(this.buildAction(window.MessageType.HOST, null))
         },
+        start: function() {
+            this._socket.send(this.buildAction(window.MessageType.START, { gameName: this.game.gameName }))
+        },
         join: function() {
-            if (this.showJoinOptions) {
-                
+            if (this.showJoinOptions && this.chosenGame != null) {
+                this._socket.send(this.buildAction(window.MessageType.JOIN, { gameName: this.chosenGame }));
             }            
             else {
                 this.showJoinOptions = true;

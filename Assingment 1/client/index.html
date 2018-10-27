@@ -48,19 +48,27 @@
                 <div v-if="playing">      
                     <div class="row my-4">
                         <div class="col">
-                            Players: 1
+                            Players: {{ game.numPlayers }}
                         </div>
                         <div class="col">
                             Bots: 0
                         </div>
-                        <div class="col">
+                        <div class="col" v-if="player.id == 1">
                             <button class="btn btn-block btn-primary">Add bot</button>
                         </div>
                         <div class="col">
                             <button v-on:click="quit" class="btn btn-block btn-primary">Quit</button>
                         </div>
                     </div>
-                    <div class="row mb-4">
+                    <div class="row mb-4"  v-if="!game.inProgress">
+                        <div class="col"  v-if="player.id == 1">
+                            <button @click="start" class="btn btn-success">Start game</button>
+                        </div>
+                        <div class="col"  v-if="player.id != 1">
+                            Waiting for host to start game
+                        </div>
+                    </div>
+                    <div class="row mb-4" v-if="game.inProgress">
                         <div class="col">
                             <div class="row" v-for="(row, rowIndex) in game.board" :key="rowIndex">
                                 <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
@@ -70,12 +78,12 @@
                         </div>
                     </div>
 
-                    <div class="row mb-4">
+                    <div class="row mb-4"  v-if="game.inProgress">
                         <div class="col p-0">
                             <button class="btn btn-success">Finish turn</button>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row"  v-if="game.inProgress">
                         <div class="col p-0">
                             <div id="powerup-accordian">
                                 <div class="card bg-light">
@@ -132,14 +140,14 @@
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
-        <script src="js/message-type.js"></script>
-        <script src="js/coordinates.js"></script>
-        <script src="js/move.js"></script>
-        <script src="js/block.js"></script>
-        <script src="js/game.js"></script>
-        <script src="js/player.js"></script>
-        <script src="js/message.js"></script>
-        <script src="js/web-socket-mock.js"></script>
+        <script src="js/models/message-type.js"></script>
+        <script src="js/models/coordinates.js"></script>
+        <script src="js/models/move.js"></script>
+        <script src="js/models/block.js"></script>
+        <script src="js/models/game.js"></script>
+        <script src="js/models/player.js"></script>
+        <script src="js/models/message.js"></script>
+        <script src="js/models/playerMoveRequest.js"></script>
         <script src="js/site.js"></script>
     </body>
 

@@ -1,11 +1,10 @@
-package assignment;
+package assignment.models;
 
-public class NewGameResponse {
-    public boolean success;
+public class NewGameResponse extends Response{
     public String gameName;
 
     public NewGameResponse(boolean success, String gameName) {
-        this.success = success;
+        super(success);
         this.gameName = gameName;
     }
 }

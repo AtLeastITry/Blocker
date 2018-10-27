@@ -1,12 +1,7 @@
 package assignment;
-import com.google.gson.Gson;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 
 @ServerEndpoint(value = "/game", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
@@ -31,7 +26,7 @@ public class GameServerEndpoint {
 
         _gameService.players.removeIf(player -> player.getSessionId() == session.getId());
         for (GameState gameState: _gameService.games) {
-            gameState.removePlayer(session.getId(), temp.getMyPlayerId());
+            gameState.removePlayer(temp.getMyPlayerId());
         }
         _gameService.users.remove(session);
     }
@@ -51,6 +46,12 @@ public class GameServerEndpoint {
                 break;
             case MessageType.ALL_GAMES:
                 _gameService.allGames(session, message);
+                break;
+            case MessageType.START:
+                _gameService.start(session, message);
+                break;
+            case MessageType.JOIN:
+                _gameService.join(session, message);
                 break;
         }
     }

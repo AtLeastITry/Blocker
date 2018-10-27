@@ -7,20 +7,67 @@ public final class GameState {
     public static final int ROWS = 6;
     public static final int COLUMNS = 10;
     public final String name = UUID.randomUUID().toString();
-    private Set<String> _playerSessionIds;
+    private Set<UserPlayer> _userPlayers;
     private int[][] _board;
     private Map<Integer, Set<InfluenceCard>> _influenceCards;
+    private boolean _inProgress;
 
 
     
     public GameState() {
-        this._playerSessionIds = new HashSet<>();
+        _userPlayers = new HashSet<>();
         _board = new int[6][10];
         _influenceCards = new HashMap<>();
+        _inProgress = false;
     }
 
-    public Set<String> getPlayerSessionIds() {
-        return this._playerSessionIds;
+    public void start() {
+        _inProgress = true;
+        Random r = new Random();
+        for (UserPlayer player: _userPlayers) {
+            boolean stoneSet = false;
+            while(!stoneSet) {
+                int low = 0;
+                int high = 6;
+                int x = r.nextInt(high-low) + low;
+                high = 10;
+                int y = r.nextInt(high-low) + low;
+
+                if (_board[x][y] == 0) {
+                    _board[x][y] = player.playerId;
+                    stoneSet = true;
+                }
+            }
+
+        }
+    }
+
+    public boolean checkPlayerInGame(String sessionId) {
+        boolean containsPlayer = false;
+        for (UserPlayer player: _userPlayers) {
+            if(player.sessionId.equals(sessionId)) {
+                containsPlayer = true;
+                break;
+            }
+        }
+
+        return containsPlayer;
+    }
+
+    public Integer getPlayerId(String sessionId) {
+        Integer result = null;
+        for (UserPlayer player: _userPlayers) {
+            if(player.sessionId.equals(sessionId)) {
+                result = player.playerId;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public Set<UserPlayer> getUserPlayers() {
+        return this._userPlayers;
     }
 
     public void addInfluenceCards(int playerId) {
@@ -48,17 +95,18 @@ public final class GameState {
         this._influenceCards.put(playerId, newCards);
     }
     
-    public void addPlayer(String sessionId, int playerId) {
-        this._playerSessionIds.add(sessionId);
-        this.addInfluenceCards(playerId);
+    public void addPlayer(String sessionId, Player player) {
+        player.setMyPlayerId(this.getNumberOfPlayers() + 1);
+        this._userPlayers.add(new UserPlayer(player.getMyPlayerId(), sessionId));
+        this.addInfluenceCards(player.getMyPlayerId());
     }
-    public void removePlayer(String sessionId, int playerId) {
-        this._playerSessionIds.removeIf(id -> id == sessionId);
+    public void removePlayer(int playerId) {
+        this._userPlayers.removeIf(userPlayer -> userPlayer.playerId == playerId);
         this.removePlayerInfluenceCards(playerId);
     }
 
     public int getNumberOfPlayers() {
-        return this._playerSessionIds.size();
+        return this._userPlayers.size();
     }
 
     // Returns a rectangular matrix of board cells, with six rows and ten columns.

@@ -6,8 +6,7 @@ public class Player implements PlayerLogic {
     private Move _nextMove;
     private String _username;
 
-    public Player(int id, String sessionId, String username) {
-        _playerId = id;
+    public Player(String sessionId, String username) {
         this.setSessionId(sessionId);
         this.setUsername(username);
     }
@@ -38,6 +37,10 @@ public class Player implements PlayerLogic {
 
     public void setPlayerId(int id) {
         this._playerId = id;
+    }
+
+    public void setMyPlayerId(int id) {
+        _playerId = id;
     }
 
     @Override
