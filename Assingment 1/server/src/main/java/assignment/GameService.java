@@ -134,4 +134,23 @@ public class GameService {
             }
         }
     }
+
+    public void checkMove(Session session, Message message) throws IOException, EncodeException {
+        checkMoveRequest request = new Gson().fromJson(message.data, checkMoveRequest.class);
+        for (GameState game: games) {
+            if (game.name.equals(request.gameName)) {
+                boolean isAllowed = game.isMoveAllowed(request.move, request.playerId);
+                Message reply = new Message();
+                reply.type = MessageType.CHECK_MOVE;
+                reply.sender = "Server";
+                reply.data = new Gson().toJson(new checkMoveResponse(true, isAllowed, request.move));
+
+                session.getBasicRemote().sendObject(reply);
+
+                break;
+            }
+        }
+
+
+    }
 }

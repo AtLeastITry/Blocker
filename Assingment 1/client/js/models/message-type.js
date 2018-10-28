@@ -5,5 +5,6 @@ window.MessageType = Object.freeze({
     "PLAYER_MOVE": 3,
     "NEW_GAME": 4,
     "ALL_GAMES": 5,
-    "START": 6
+    "START": 6,
+    "CHECK_MOVE": 7
 })

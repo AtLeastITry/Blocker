@@ -11,6 +11,7 @@ public final class GameState {
     private int[][] _board;
     private Map<Integer, Set<InfluenceCard>> _influenceCards;
     private boolean _inProgress;
+    private int _playerTurn;
 
 
     
@@ -23,6 +24,7 @@ public final class GameState {
 
     public void start() {
         _inProgress = true;
+        _playerTurn = 1;
         Random r = new Random();
         for (UserPlayer player: _userPlayers) {
             boolean stoneSet = false;
@@ -202,6 +204,13 @@ public final class GameState {
 
         if (move.getCard() != null && move.getCard() != InfluenceCard.NONE) {
             this.removeInfluenceCard(playerId, move.getCard());
+        }
+
+        if (playerId == 5) {
+            _playerTurn = 1;
+        }
+        else {
+            _playerTurn++;
         }
     }
 }

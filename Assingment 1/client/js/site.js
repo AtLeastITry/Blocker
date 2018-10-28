@@ -8,7 +8,8 @@ var app = new Vue({
         game: null,
         player: null,
         avaliableGameNames: [],
-        chosenGame: null
+        chosenGame: null,
+        chosenCoordinates: []
     },
     created: function() {
         this._socket = new WebSocket("ws://localhost:8080/assignment/game");
@@ -20,10 +21,26 @@ var app = new Vue({
     },
     methods: {
         selectBlock: function(rowIndex, blockIndex) {
-            firstMove = new window.coordinates(rowIndex, blockIndex);
-            let move = new window.move(null, firstMove, null);
+            if (this.chosenCoordinates.length > 0 && this.chosenCoordinates[0].x == rowIndex && this.chosenCoordinates[0].y == blockIndex) {
+                this.chosenCoordinates = [];
+                this.game.board[rowIndex][blockIndex].newPlayerId = null;
+                return;
+            }
+
+            if (this.chosenCoordinates.length > 0) {
+                return;
+            }
+
+            let move = new window.move(null, new window.coordinates(rowIndex, blockIndex));
+            let checkMoveRequest = new window.checkMoveRequest(this.game.gameName, move, this.player.id);
+            this._socket.send(this.buildAction(window.MessageType.CHECK_MOVE, checkMoveRequest));
+            
+        },
+        submitTurn: function() {
+            firstMove = this.chosenCoordinates[0];
+            let move = new window.move(null, firstMove, secondMove);
             let playerMoveRequest = new window.playerMoveRequest(this.game.gameName, move);
-            this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, playerMoveRequest))            
+            this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, playerMoveRequest)) 
         },
         onMessage: function(event) {
             let msg = JSON.parse(event.data);
@@ -54,6 +71,15 @@ var app = new Vue({
                     case window.MessageType.ALL_GAMES:
                         this.avaliableGameNames = data.gameNames;
                         break;
+                    case window.MessageType.ALL_GAMES:
+                        this.avaliableGameNames = data.gameNames;
+                        break;
+                    case window.MessageType.CHECK_MOVE:
+                        if (data.moveAllowed) {
+                            this.chosenCoordinates.push(new window.coordinates(data.move.firstMove.x, data.move.firstMove.y));
+                            this.game.board[data.move.firstMove.x][data.move.firstMove.y].newPlayerId = this.player.id;
+                            this.game.board[data.move.firstMove.x][data.move.firstMove.y].updateBackground();
+                        }
                 }
             }
             

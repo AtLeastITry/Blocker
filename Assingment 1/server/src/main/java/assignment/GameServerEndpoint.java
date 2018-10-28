@@ -53,6 +53,9 @@ public class GameServerEndpoint {
             case MessageType.JOIN:
                 _gameService.join(session, message);
                 break;
+            case MessageType.CHECK_MOVE:
+                _gameService.checkMove(session, message);
+                break;
         }
     }
 }
