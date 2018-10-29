@@ -3,7 +3,6 @@ var app = new Vue({
     data: {
         playing: false,
         _socket: null,
-        username: null,
         showJoinOptions: false,
         game: null,
         player: null,
@@ -19,11 +18,65 @@ var app = new Vue({
             self._socket.send(self.buildAction(window.MessageType.ALL_GAMES, null));
         }
     },
+    computed: {
+        canMove: function() {
+            return this.game.inProgress && this.game.playerTurn == this.player.id;
+        },
+        username: function() {
+            if (this.player != null) {
+                return "player " + this.player.id
+            }
+
+            return "client";
+        },
+        moveText: function() {
+            if (!this.canMove && this.game.inProgress) {
+                return "player " + this.game.playerTurn + "'s turn"
+            }
+
+            return "";
+        },
+        userColor: function() {
+            let color = {
+                'bg-primary': false,
+                'bg-success': false,
+                'bg-info': false,
+                'bg-warning': false,
+                'bg-danger': false,
+            };
+            switch(this.player.id) {
+                case 1:
+                    color["bg-primary"] = true;
+                    break;
+                case 2:
+                    color["bg-success"] = true;
+                    break;
+                case 3:
+                    color["bg-info"] = true;
+                    break;
+                case 4:
+                    color["bg-warning"] = true;
+                    break;
+                case 5:
+                    color["bg-danger"] = true;
+                    break;
+            }
+
+            console.log(color);
+
+            return color;
+        }
+    },
     methods: {
         selectBlock: function(rowIndex, blockIndex) {
+            if (!this.canMove) {
+                return;
+            }
+
             if (this.chosenCoordinates.length > 0 && this.chosenCoordinates[0].x == rowIndex && this.chosenCoordinates[0].y == blockIndex) {
                 this.chosenCoordinates = [];
                 this.game.board[rowIndex][blockIndex].newPlayerId = null;
+                this.game.board[rowIndex][blockIndex].updateBackground();
                 return;
             }
 
@@ -38,7 +91,7 @@ var app = new Vue({
         },
         submitTurn: function() {
             firstMove = this.chosenCoordinates[0];
-            let move = new window.move(null, firstMove, secondMove);
+            let move = new window.move(null, firstMove, null);
             let playerMoveRequest = new window.playerMoveRequest(this.game.gameName, move);
             this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, playerMoveRequest)) 
         },
@@ -59,11 +112,21 @@ var app = new Vue({
                         this.showJoinOptions = false;
                         break;
                     case window.MessageType.LEAVE: 
-                        this.playing = false;
+                        if (data.hasLeft) {
+                            this.playing = false;
+                            this.player= null;
+                            this.game = null;
+                            this.chosenCoordinates = [];
+                            this.chosenGame = null;
+                        }
+                        else {
+                            this.game = new window.game(data.game);
+                        }                        
                         break;
                     case window.MessageType.PLAYER_MOVE:
                     case window.MessageType.START:
                         this.game = new window.game(data.game);
+                        this.chosenCoordinates = [];
                         break;
                     case window.MessageType.NEW_GAME:
                         this.avaliableGameNames.push(data.gameName);
@@ -99,7 +162,7 @@ var app = new Vue({
             }
         },
         quit: function() {
-            
+            this._socket.send(this.buildAction(window.MessageType.LEAVE, { gameName: this.game.gameName, playerId: this.player.id }))
         },
         buildAction: function(type, data) {
             return JSON.stringify(new window.Message(this.username, type, data));

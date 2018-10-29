@@ -4,19 +4,9 @@ public class Player implements PlayerLogic {
     private String _sessionId;
     private int _playerId;
     private Move _nextMove;
-    private String _username;
 
-    public Player(String sessionId, String username) {
+    public Player(String sessionId) {
         this.setSessionId(sessionId);
-        this.setUsername(username);
-    }
-
-    public String getUsernmae() {
-        return this._username;
-    }
-
-    public void setUsername(String username) {
-        this._username = username;
     }
 
     public Move getNextMove() {

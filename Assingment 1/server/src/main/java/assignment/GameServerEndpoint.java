@@ -45,7 +45,7 @@ public class GameServerEndpoint {
                 _gameService.playerMove(session, message);
                 break;
             case MessageType.ALL_GAMES:
-                _gameService.allGames(session, message);
+                _gameService.allGames();
                 break;
             case MessageType.START:
                 _gameService.start(session, message);
@@ -55,6 +55,9 @@ public class GameServerEndpoint {
                 break;
             case MessageType.CHECK_MOVE:
                 _gameService.checkMove(session, message);
+                break;
+            case MessageType.LEAVE:
+                _gameService.leave(session, message);
                 break;
         }
     }

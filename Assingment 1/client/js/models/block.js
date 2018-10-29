@@ -10,6 +10,9 @@ window.block = function(playerId) {
         }
 
         switch(tempPlayerId) {
+            case 0:
+                this.background = "";
+                break;
             case 1:
                 this.background="bg-primary";
                 break;

@@ -4,6 +4,7 @@ window.game = function(game) {
     this.inProgress = game._inProgress;
     this.gameName = game.name;
     this.numPlayers = game._userPlayers.length;
+    this.playerTurn = game._playerTurn;
 
     for (let i = 0; i < game._board.length; i++) {
         const row = [];

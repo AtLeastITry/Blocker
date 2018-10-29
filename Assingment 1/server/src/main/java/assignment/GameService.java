@@ -14,7 +14,7 @@ public class GameService {
     public ArrayList<GameState> games = new ArrayList<GameState>();
 
     public void host(Session session, Message message) throws IOException, EncodeException {
-        Player player = new Player(session.getId(), message.sender);
+        Player player = new Player(session.getId());
         GameState game = new GameState();
         game.addPlayer(session.getId(), player);
         this.players.add(player);
@@ -38,7 +38,7 @@ public class GameService {
 
     public void join(Session session, Message message) throws IOException, EncodeException {
         Request request = new Gson().fromJson(message.data, Request.class);
-        Player player = new Player(session.getId(), message.sender);
+        Player player = new Player(session.getId());
 
         for (int i = 0; i < games.size(); i++) {
             GameState game = games.get(i);
@@ -63,7 +63,7 @@ public class GameService {
             }
         }
 
-
+        this.allGames();
     }
 
     public void start(Session session, Message message) throws IOException, EncodeException {
@@ -86,13 +86,51 @@ public class GameService {
                 break;
             }
         }
+
+        this.allGames();
     }
 
-    public void allGames(Session session, Message message) throws IOException, EncodeException {
+    public void leave(Session session, Message message) throws IOException, EncodeException {
+        LeaveRequest request = new Gson().fromJson(message.data, LeaveRequest.class);
+        Integer gameIndex = null;
+
+        for (int i = 0; i < games.size(); i++) {
+            GameState game = games.get(i);
+            if (game.name.equals(request.gameName)) {
+                gameIndex = i;
+                game.removePlayer(request.playerId);
+                Message reply = new Message();
+                reply.type = MessageType.LEAVE;
+                reply.sender = "Server";
+                reply.data = new Gson().toJson(new LeaveResponse(true, game, false));
+                if (game.getNumberOfPlayers() > 0) {
+                    for (Session userSession: users) {
+                        if (game.checkPlayerInGame(userSession.getId())) {
+                            userSession.getBasicRemote().sendObject(reply);
+                        }
+                    }
+                }
+
+                reply.data = new Gson().toJson(new LeaveResponse(true, game, true));
+                session.getBasicRemote().sendObject(reply);
+                break;
+            }
+        }
+
+        if (gameIndex != null) {
+            games.remove(gameIndex.intValue());
+        }
+
+        this.allGames();
+    }
+
+    public void allGames() throws IOException, EncodeException {
         List<String> gameNames = new ArrayList<>();
 
         for (GameState game: games) {
-            gameNames.add(game.name);
+            if (!game.getInPogress() && game.getNumberOfPlayers() < 5) {
+                gameNames.add(game.name);
+            }
         }
 
         Message reply = new Message();
@@ -106,7 +144,7 @@ public class GameService {
     }
 
     public void playerMove(Session session, Message message) throws IOException, EncodeException {
-        playerMoveRequest request = new Gson().fromJson(message.data, playerMoveRequest.class);
+        PlayerMoveRequest request = new Gson().fromJson(message.data, PlayerMoveRequest.class);
 
         playerLoop:
         for (int i = 0; i < this.players.size(); i++) {
@@ -136,14 +174,14 @@ public class GameService {
     }
 
     public void checkMove(Session session, Message message) throws IOException, EncodeException {
-        checkMoveRequest request = new Gson().fromJson(message.data, checkMoveRequest.class);
+        CheckMoveRequest request = new Gson().fromJson(message.data, CheckMoveRequest.class);
         for (GameState game: games) {
             if (game.name.equals(request.gameName)) {
                 boolean isAllowed = game.isMoveAllowed(request.move, request.playerId);
                 Message reply = new Message();
                 reply.type = MessageType.CHECK_MOVE;
                 reply.sender = "Server";
-                reply.data = new Gson().toJson(new checkMoveResponse(true, isAllowed, request.move));
+                reply.data = new Gson().toJson(new CheckMoveResponse(true, isAllowed, request.move));
 
                 session.getBasicRemote().sendObject(reply);
 

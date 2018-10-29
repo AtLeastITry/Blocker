@@ -44,6 +44,10 @@ public final class GameState {
         }
     }
 
+    public boolean getInPogress() {
+        return this._inProgress;
+    }
+
     public boolean checkPlayerInGame(String sessionId) {
         boolean containsPlayer = false;
         for (UserPlayer player: _userPlayers) {
@@ -206,7 +210,7 @@ public final class GameState {
             this.removeInfluenceCard(playerId, move.getCard());
         }
 
-        if (playerId == 5) {
+        if (playerId == this.getNumberOfPlayers()) {
             _playerTurn = 1;
         }
         else {

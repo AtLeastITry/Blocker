@@ -10,8 +10,8 @@
     border-radius: 8px;
 }
 
-.game-block div:hover,
-.game-block div.selected {
+.moveAvaliable .game-block div:hover,
+.moveAvaliable .game-block div.selected {
     background: #e6e6e6;
 }
 
@@ -51,4 +51,27 @@
 
 #powerup-accordian .card-header {
     cursor: pointer;
+}
+
+.move-text {
+    text-align: center;
+    top: 95%;
+    transform: translateY(-50%);
+    height: 100%;
+    left: 45%;
+    position: absolute;
+}
+
+.moveInProgress {
+    opacity: 0.3;
+}
+
+.player-block {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.17);
 }
