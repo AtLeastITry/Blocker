@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>board game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+        <link href="css/site.css" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <main id="app">
+            <div class="container" style="height: 100vh;">
+                <div class="row h-100 justify-content-center align-items-center" v-if="!playing">
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div v-show="!showJoinOptions" style="display: none;">
+                                    <div class="form-group">
+                                        <button v-on:click="host" class="btn btn-block btn-primary">Host</button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button v-on:click="join" class="btn btn-block btn-primary">Join game</button>
+                                    </div>
+                                </div>
+                                <div v-if="showJoinOptions">
+                                    <div class="form-group">
+                                        <select v-model="chosenGame" class="form-control">
+                                            <option value="null">--please select--</option>
+                                            <option v-for="game in avaliableGameNames" v-bind:value="game">
+                                                {{ game }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <button v-on:click="join" class="btn btn-block btn-primary">Join</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>   
+                </div>
+                <div v-if="playing">      
+                    <div class="row my-4">
+                        <div class="col">
+                            <p v-if="!game.inProgress">players: {{ game.numPlayers }}/5</p>
+                            <p v-if="game.inProgress">
+                                <span class="player-block" v-bind:class="userColor"></span>{{ username }}
+                            </p>
+                        </div>
+                        <div class="col" v-if="player.id == 1 && !game.inProgress">
+                            <button class="btn btn-block btn-primary">Add bot</button>
+                        </div>
+                        <div class="col">
+                            <button @click="quit" class="btn btn-block btn-primary">Quit</button>
+                        </div>
+                    </div>
+                    <div class="row mb-4"  v-if="!game.inProgress">
+                            <div class="col"  v-if="player.id == 1 && game.numPlayers < 2">
+                                <div class="alert alert-warning">
+                                    There needs to be at least 2 players before the game can start
+                                </div>
+                            </div>
+                        </div>
+                    <div class="row mb-4"  v-if="!game.inProgress">
+                        <div class="col"  v-if="player.id == 1">
+                            <button :disabled="game.numPlayers < 2" @click="start" class="btn btn-success">Start game</button>
+                        </div>
+                        <div class="col"  v-if="player.id != 1">
+                            Waiting for host to start game
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="move-text" v-if="!canMove && game.inProgress">{{ moveText }}</h3>
+                        <div v-bind:class="{ moveInProgress: !canMove, moveAvaliable: canMove }">
+                            <div class="row mb-4" v-if="game.inProgress">
+                                <div class="col">
+                                    <div class="row" v-for="(row, rowIndex) in game.board" :key="rowIndex">
+                                        <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
+                                            <div v-bind:class="block.background" @click="selectBlock(rowIndex, blockIndex)"></div>
+                                        </div>
+                                    </div>    
+                                </div>
+                            </div>
+                        </div>  
+                    </div>                  
+
+                    <div class="row mb-4"  v-if="game.inProgress">
+                        <div class="col p-0">
+                            <button @click="submitTurn" :disabled="chosenCoordinates.length < 1" v- class="btn btn-success">Finish turn</button>
+                        </div>
+                    </div>
+                    <div class="row"  v-if="game.inProgress">
+                        <div class="col p-0">
+                            <div id="powerup-accordian">
+                                <div class="card bg-light">
+                                    <div class="card-header bg-primary" id="powerups-heading" data-toggle="collapse" data-target="#powerups" aria-expanded="true" aria-controls="powerups">
+                                        <h5 class="mb-0 text-white">
+                                                Powerups
+                                        </h5>
+                                    </div>
+                                
+                                    <div id="powerups" class="collapse show" aria-labelledby="powerups-heading" data-parent="#powerup-accordian">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="powerup bg-success" @click="selectDouble" v-bind:class="{ avaliable: !powerupSelected || doubleSelected, selected: doubleSelected }">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-dice-two"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="powerup bg-success" @click="selectFreedom" v-bind:class="{ avaliable: !powerupSelected || freedomSelected, selected: freedomSelected }">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-expand-arrows-alt"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="powerup bg-success" @click="selectReplacement" v-bind:class="{ avaliable: !powerupSelected || replacementSelected, selected: replacementSelected }">
+                                                                <div class="content">
+                                                                    <h3 class="title"><i class="fas fa-exchange-alt"></i></h3>
+                                                                </div>                                        
+                                                            </div>                                  
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>             
+                </div>
+            </div>
+
+
+        </main>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>        
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+        <script src="js/models/message-type.js"></script>
+        <script src="js/models/influence-cards.js"></script>
+        <script src="js/models/coordinates.js"></script>
+        <script src="js/models/move.js"></script>
+        <script src="js/models/block.js"></script>
+        <script src="js/models/game.js"></script>
+        <script src="js/models/player.js"></script>
+        <script src="js/models/message.js"></script>
+        <script src="js/models/playerMoveRequest.js"></script>
+        <script src="js/models/checkMoveRequest.js"></script>
+        <script src="js/site.js"></script>
+    </body>
+
+</html>
