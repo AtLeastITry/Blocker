@@ -19,28 +19,43 @@ var app = new Vue({
         }
     },
     computed: {
-        powerupSelected: function() {
-            return this.player.selectCard == "";
+        doubleSelected: function() {
+            return this.player.selectedCard == window.InfluenceCard.DOUBLE;
         },
         freedomSelected: function() {
-            return this.player.selectCard == window.InfluenceCard.FREEDOM;
-        },
-        doubleSelected: function() {
-            return this.player.selectCard == window.InfluenceCard.DOUBLE;
+            return this.player.selectedCard == window.InfluenceCard.FREEDOM;
         },
         replacementSelected: function() {
-            return this.player.selectCard == window.InfluenceCard.REPLACEMENT;
+            return this.player.selectedCard == window.InfluenceCard.REPLACEMENT;
+        },
+        playerCards: function() {
+            if (this.game != null) {
+                return this.game.getInfluenceCards(this.player.id);
+            }
+
+            return [];
         },
         playerLost: function() {
-            if (!game.players) {
+            if (!this.game.players) {
                 return false;
             }
-            var player = game.players.filter(player => player.playerId == this.player.id);
-            if (player == null) {
+            var player = this.game.players.filter(player => player.playerId == this.player.id);
+            if (player == null || player.length < 1) {
                 return false;
             }
 
-            return !player.canMove;
+            return !player[0].canMove;
+        },
+        playerWon: function() {
+            if (!this.game.players) {
+                return false;
+            }
+            var player = this.game.players.filter(player => player.playerId == this.player.id);
+            if (player == null || player.length < 1) {
+                return false;
+            }
+
+            return player[0].canMove && this.game.finished;
         },
         canMove: function() {
             return this.game.inProgress && this.game.playerTurn == this.player.id && !this.playerLost;
@@ -55,10 +70,14 @@ var app = new Vue({
         moveText: function() {
             if (!this.canMove && this.game.inProgress) {
                 if (this.playerLost) {
-                    return "You have lost the game"
+                    return "You have lost the game";
                 }
 
-                return "player " + this.game.playerTurn + "'s turn"
+                if (this.playerWon) {
+                    return "You have won the game";
+                }
+
+                return "player " + this.game.playerTurn + "'s turn";
             }
 
             return "";
@@ -100,45 +119,75 @@ var app = new Vue({
                 return;
             }
 
-            if (this.chosenCoordinates.length > 0 && this.chosenCoordinates[0].x == rowIndex && this.chosenCoordinates[0].y == blockIndex) {
+            if (this.chosenCoordinates.length == 1 && this.chosenCoordinates[0].x == rowIndex && this.chosenCoordinates[0].y == blockIndex) {
                 this.chosenCoordinates = [];
                 this.game.board[rowIndex][blockIndex].newPlayerId = null;
                 this.game.board[rowIndex][blockIndex].updateBackground();
                 return;
             }
 
-            if (this.chosenCoordinates.length > 0) {
+            if (this.chosenCoordinates.length > 1) {
+                if (this.chosenCoordinates[0].x == rowIndex && this.chosenCoordinates[0].y == blockIndex) {
+                    return;
+                }
+
+                if (this.chosenCoordinates[1].x == rowIndex && this.chosenCoordinates[1].y == blockIndex) {
+                    this.game.board[rowIndex][blockIndex].newPlayerId = null;
+                    this.game.board[rowIndex][blockIndex].updateBackground();
+
+                    this.chosenCoordinates.splice(1, 1);
+                    return;
+                }
+
                 return;
             }
 
-            let move = new window.move(null, new window.coordinates(rowIndex, blockIndex));
+            if (this.chosenCoordinates.length > 0) {
+                if (this.doubleSelected) {
+                    let firstCoordinate = this.chosenCoordinates[0];
+                    let secondCoordinate = new window.coordinatesModel(rowIndex, blockIndex);
+                    let move = new window.moveModel(this.player.selectedCard, firstCoordinate, secondCoordinate);
+                    let checkMoveRequest = new window.checkMoveRequest(this.game.gameName, move, this.player.id);
+                    this._socket.send(this.buildAction(window.MessageType.CHECK_MOVE, checkMoveRequest));
+                }
+
+                return;
+            }
+
+            let move = new window.moveModel(this.player.selectedCard, new window.coordinatesModel(rowIndex, blockIndex));
             let checkMoveRequest = new window.checkMoveRequest(this.game.gameName, move, this.player.id);
             this._socket.send(this.buildAction(window.MessageType.CHECK_MOVE, checkMoveRequest));
-            
+
+            return;
         },
         selectCard: function(card) {
             if (this.player.selectedCard != "" && this.player.selectedCard != card) {
-                return;
+                return false;
             }
             if (this.player.selectedCard == card) {
                 this.player.selectedCard = "";
-                return;
+
+                this.chosenCoordinates.forEach(coordinate => {
+                    this.game.board[coordinate.x][coordinate.y].newPlayerId = null;
+                    this.game.board[coordinate.x][coordinate.y].updateBackground();
+                });
+
+                this.chosenCoordinates = [];
+
+                return false;
             }
 
             this.player.selectedCard = card
-        },
-        selectFreedom: function() {
-            return this.selectCard(window.InfluenceCard.FREEDOM);
-        },
-        selectDouble: function() {
-            return this.selectCard(window.InfluenceCard.DOUBLE);
-        },
-        selectReplacement: function() {
-            return this.selectCard(window.InfluenceCard.REPLACEMENT);
+            return true;
         },
         submitTurn: function() {
             firstMove = this.chosenCoordinates[0];
-            let move = new window.move(null, firstMove, null);
+            secondMove = null;
+
+            if (this.chosenCoordinates.length > 1 && this.doubleSelected) {
+                secondMove = this.chosenCoordinates[1];
+            }
+            let move = new window.moveModel(this.player.selectedCard, firstMove, secondMove);
             let playerMoveRequest = new window.playerMoveRequest(this.game.gameName, move);
             this._socket.send(this.buildAction(window.MessageType.PLAYER_MOVE, playerMoveRequest)) 
         },
@@ -148,14 +197,14 @@ var app = new Vue({
             if (data.success) {
                 switch(msg.type) {
                     case window.MessageType.HOST: 
-                        this.game = new window.game(data.game);
-                        this.player = new window.player(this.username, data.playerId);
+                        this.game = new window.gameModel(data.game);
+                        this.player = new window.playerModel(this.username, data.playerId);
                         this.playing = true;
                         break;
                     case window.MessageType.JOIN: 
-                        this.game = new window.game(data.game);
+                        this.game = new window.gameModel(data.game);
                         this.playing = true;
-                        this.player = new window.player(this.username, data.playerId);
+                        this.player = new window.playerModel(this.username, data.playerId);
                         this.showJoinOptions = false;
                         break;
                     case window.MessageType.LEAVE: 
@@ -167,13 +216,14 @@ var app = new Vue({
                             this.chosenGame = null;
                         }
                         else {
-                            this.game = new window.game(data.game);
+                            this.game = new window.gameModel(data.game);
                         }                        
                         break;
                     case window.MessageType.PLAYER_MOVE:
                     case window.MessageType.START:
-                        this.game = new window.game(data.game);
+                        this.game = new window.gameModel(data.game);
                         this.chosenCoordinates = [];
+                        this.player.selectedCard = "";
                         break;
                     case window.MessageType.NEW_GAME:
                         this.avaliableGameNames.push(data.gameName);
@@ -181,15 +231,20 @@ var app = new Vue({
                     case window.MessageType.ALL_GAMES:
                         this.avaliableGameNames = data.gameNames;
                         break;
-                    case window.MessageType.ALL_GAMES:
-                        this.avaliableGameNames = data.gameNames;
-                        break;
                     case window.MessageType.CHECK_MOVE:
                         if (data.moveAllowed) {
-                            this.chosenCoordinates.push(new window.coordinates(data.move.firstMove.x, data.move.firstMove.y));
-                            this.game.board[data.move.firstMove.x][data.move.firstMove.y].newPlayerId = this.player.id;
-                            this.game.board[data.move.firstMove.x][data.move.firstMove.y].updateBackground();
+                            if (data.move.secondMove != null) {
+                                this.chosenCoordinates.push(new window.coordinatesModel(data.move.secondMove.x, data.move.secondMove.y));
+                                this.game.board[data.move.secondMove.x][data.move.secondMove.y].newPlayerId = this.player.id;
+                                this.game.board[data.move.secondMove.x][data.move.secondMove.y].updateBackground();
+                            }
+                            else {
+                                this.chosenCoordinates.push(new window.coordinatesModel(data.move.firstMove.x, data.move.firstMove.y));
+                                this.game.board[data.move.firstMove.x][data.move.firstMove.y].newPlayerId = this.player.id;
+                                this.game.board[data.move.firstMove.x][data.move.firstMove.y].updateBackground();
+                            }
                         }
+                        break;
                 }
             }
             

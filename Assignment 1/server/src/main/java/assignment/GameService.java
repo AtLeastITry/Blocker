@@ -15,7 +15,7 @@ public class GameService {
 
     public void host(Session session, Message message) throws IOException, EncodeException {
         Player player = new Player(session.getId());
-        GameState game = new GameState();
+        GameState game = new GameState("Game " + (games.size() + 1));
         game.addPlayer(session.getId(), player);
         this.players.add(player);
         this.games.add(game);
@@ -157,7 +157,6 @@ public class GameService {
 
                     if (game.name.equals(request.gameName)) {
                         player.makeMove(game);
-                        game.checkPlayersCanMove();
                         Message reply = new Message();
                         reply.type = MessageType.PLAYER_MOVE;
                         reply.sender = "Server";

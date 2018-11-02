@@ -6,7 +6,7 @@ import java.util.*;
 public final class GameState {
     public static final int ROWS = 6;
     public static final int COLUMNS = 10;
-    public final String name = UUID.randomUUID().toString();
+    public String name;
     private ArrayList<UserPlayer> _userPlayers;
     private int[][] _board;
     private Map<Integer, Set<InfluenceCard>> _influenceCards;
@@ -14,11 +14,12 @@ public final class GameState {
     private int _playerTurn;
     private boolean _gameFinished;
     
-    public GameState() {
+    public GameState(String name) {
         _userPlayers = new ArrayList<>();
         _board = new int[6][10];
         _influenceCards = new HashMap<>();
         _inProgress = false;
+        this.name = name;
     }
 
     public void start() {
@@ -96,15 +97,17 @@ public final class GameState {
             }
 
             rowLoop:
-            for (int x = 0; x < this.getBoard().length; i++) {
-                for (int y = 0; y < this.getBoard()[i].length; i++) {
-                    if (hasFreedom) {
+            for (int x = 0; x < this.getBoard().length; x++) {
+                for (int y = 0; y < this.getBoard()[i].length; y++) {
+                    Integer stoneId = getStoneId(new Coordinates(x, y));
+
+                    if (hasFreedom && stoneId == 0) {
                         canMove = this.checkMove(x, y, InfluenceCard.FREEDOM, user.playerId);
                     }
-                    else if(hasReplacement) {
+                    else if(hasReplacement && stoneId != 0) {
                         canMove = this.checkMove(x, y, InfluenceCard.REPLACEMENT, user.playerId);
                     }
-                    else {
+                    else if(stoneId == 0) {
                         canMove = this.checkMove(x, y, null, user.playerId);
                     }
 
@@ -166,6 +169,18 @@ public final class GameState {
 
     public int getNumberOfPlayers() {
         return this._userPlayers.size();
+    }
+
+    public ArrayList<UserPlayer> getActivePlayers() {
+        ArrayList<UserPlayer> players = new ArrayList<>();
+
+        for (UserPlayer player: this._userPlayers) {
+            if (player.canMove) {
+                players.add(player);
+            }
+        }
+
+        return players;
     }
 
     // Returns a rectangular matrix of board cells, with six rows and ten columns.
@@ -242,8 +257,29 @@ public final class GameState {
         return validCoordinate(player, move.getFirstMove(), move.getCard());
     }
 
+    public int getNextPlayerTurn(int playerId, ArrayList<UserPlayer> activePlayers) {
+        if (activePlayers.size() < 1) {
+            return playerId;
+        }
+
+        if (playerId == this.getNumberOfPlayers()) {
+            return getNextPlayerTurn(1, activePlayers);
+        }
+
+        playerId++;
+
+        for (UserPlayer player : activePlayers) {
+            if (player.playerId == playerId) {
+                return playerId;
+            }
+        }
+
+        return getNextPlayerTurn(playerId, activePlayers);
+    }
+
     public void makeMoves(Move move, int playerId) {
         this.updateBoard(move.getFirstMove(), playerId);
+
         if (move.getSecondMove() != null) {
             this.updateBoard(move.getSecondMove(), playerId);
         }
@@ -252,12 +288,9 @@ public final class GameState {
             this.removeInfluenceCard(playerId, move.getCard());
         }
 
-        if (playerId == this.getNumberOfPlayers()) {
-            _playerTurn = 1;
-        }
-        else {
-            _playerTurn++;
-        }
+        this.checkPlayersCanMove();
+        ArrayList<UserPlayer> activePlayers = getActivePlayers();
+        _playerTurn = getNextPlayerTurn(_playerTurn, activePlayers);    
     }
 }
 

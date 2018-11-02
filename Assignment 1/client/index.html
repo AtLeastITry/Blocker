@@ -50,6 +50,9 @@
                                 <span class="player-block" v-bind:class="userColor"></span>{{ username }}
                             </p>
                         </div>
+                        <div class="col">
+                            <p>{{ game.gameName }}</p>
+                        </div>
                         <div class="col" v-if="player.id == 1 && !game.inProgress">
                             <button class="btn btn-block btn-primary">Add bot</button>
                         </div>
@@ -107,24 +110,10 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="row">
-                                                        <div class="col">
-                                                            <div class="powerup bg-success" @click="selectDouble" v-bind:class="{ avaliable: !powerupSelected || doubleSelected, selected: doubleSelected }">
+                                                        <div class="col" v-for="(card, index) in playerCards" :key="index">
+                                                            <div class="powerup bg-success" @click="selectCard(card.value)">
                                                                 <div class="content">
-                                                                    <h3 class="title"><i class="fas fa-dice-two"></i></h3>
-                                                                </div>                                        
-                                                            </div>                                  
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="powerup bg-success" @click="selectFreedom" v-bind:class="{ avaliable: !powerupSelected || freedomSelected, selected: freedomSelected }">
-                                                                <div class="content">
-                                                                    <h3 class="title"><i class="fas fa-expand-arrows-alt"></i></h3>
-                                                                </div>                                        
-                                                            </div>                                  
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="powerup bg-success" @click="selectReplacement" v-bind:class="{ avaliable: !powerupSelected || replacementSelected, selected: replacementSelected }">
-                                                                <div class="content">
-                                                                    <h3 class="title"><i class="fas fa-exchange-alt"></i></h3>
+                                                                    <h3 class="title"><i v-bind:class="card.icon"></i></h3>
                                                                 </div>                                        
                                                             </div>                                  
                                                         </div>
@@ -151,6 +140,7 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
         <script src="js/models/message-type.js"></script>
         <script src="js/models/influence-cards.js"></script>
+        <script src="js/models/card.js"></script>
         <script src="js/models/coordinates.js"></script>
         <script src="js/models/move.js"></script>
         <script src="js/models/block.js"></script>
