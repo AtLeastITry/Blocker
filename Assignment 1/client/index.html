@@ -21,8 +21,8 @@
                                     <div class="form-group">
                                         <button v-on:click="host" class="btn btn-block btn-primary">Host</button>
                                     </div>
-                                    <div class="form-group">
-                                        <button v-on:click="join" class="btn btn-block btn-primary">Join game</button>
+                                    <div>
+                                        <button v-on:click="join" :disabled="avaliableGameNames.length < 1" class="btn btn-block btn-primary">Join game</button>
                                     </div>
                                 </div>
                                 <div v-if="showJoinOptions">
