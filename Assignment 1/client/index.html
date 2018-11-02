@@ -111,7 +111,7 @@
                                                 <div class="col">
                                                     <div class="row">
                                                         <div class="col" v-for="(card, index) in playerCards" :key="index">
-                                                            <div class="powerup bg-success" @click="selectCard(card.value)">
+                                                            <div class="powerup bg-success" @click="selectCard(card)" v-bind:class="{ avaliable: !powerupSelected, selected: card.selected }">
                                                                 <div class="content">
                                                                     <h3 class="title"><i v-bind:class="card.icon"></i></h3>
                                                                 </div>                                        

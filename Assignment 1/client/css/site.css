@@ -28,6 +28,7 @@
 .powerup.selected,
 .powerup.avaliable:hover {
     opacity: 1;
+    cursor: pointer;
 }
 
 .powerup .content {

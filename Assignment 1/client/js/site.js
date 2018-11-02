@@ -8,7 +8,8 @@ var app = new Vue({
         player: null,
         avaliableGameNames: [],
         chosenGame: null,
-        chosenCoordinates: []
+        chosenCoordinates: [],
+        playerCards: []
     },
     created: function() {
         this._socket = new WebSocket("ws://localhost:8080/assignment/game");
@@ -19,6 +20,19 @@ var app = new Vue({
         }
     },
     computed: {
+        powerupSelected: function() {
+            let selected = false;
+
+            for (let i = 0; i < this.playerCards.length; i++) {
+                const card = this.playerCards[i];
+                if (card.selected) {
+                    selected = true;
+                    break;
+                }
+            }
+
+            return selected;
+        },
         doubleSelected: function() {
             return this.player.selectedCard == window.InfluenceCard.DOUBLE;
         },
@@ -27,13 +41,6 @@ var app = new Vue({
         },
         replacementSelected: function() {
             return this.player.selectedCard == window.InfluenceCard.REPLACEMENT;
-        },
-        playerCards: function() {
-            if (this.game != null) {
-                return this.game.getInfluenceCards(this.player.id);
-            }
-
-            return [];
         },
         playerLost: function() {
             if (!this.game.players) {
@@ -161,11 +168,12 @@ var app = new Vue({
             return;
         },
         selectCard: function(card) {
-            if (this.player.selectedCard != "" && this.player.selectedCard != card) {
+            if (this.player.selectedCard != "" && this.player.selectedCard != card.value) {
                 return false;
             }
-            if (this.player.selectedCard == card) {
+            if (this.player.selectedCard == card.value) {
                 this.player.selectedCard = "";
+                card.selected = false;
 
                 this.chosenCoordinates.forEach(coordinate => {
                     this.game.board[coordinate.x][coordinate.y].newPlayerId = null;
@@ -177,7 +185,8 @@ var app = new Vue({
                 return false;
             }
 
-            this.player.selectedCard = card
+            this.player.selectedCard = card.value
+            card.selected = true;
             return true;
         },
         submitTurn: function() {
@@ -200,12 +209,14 @@ var app = new Vue({
                         this.game = new window.gameModel(data.game);
                         this.player = new window.playerModel(this.username, data.playerId);
                         this.playing = true;
+                        this.playerCards = this.game.getInfluenceCards(this.player.id);
                         break;
                     case window.MessageType.JOIN: 
                         this.game = new window.gameModel(data.game);
                         this.playing = true;
                         this.player = new window.playerModel(this.username, data.playerId);
                         this.showJoinOptions = false;
+                        this.playerCards = this.game.getInfluenceCards(this.player.id);
                         break;
                     case window.MessageType.LEAVE: 
                         if (data.hasLeft) {
@@ -224,6 +235,7 @@ var app = new Vue({
                         this.game = new window.gameModel(data.game);
                         this.chosenCoordinates = [];
                         this.player.selectedCard = "";
+                        this.playerCards = this.game.getInfluenceCards(this.player.id);
                         break;
                     case window.MessageType.NEW_GAME:
                         this.avaliableGameNames.push(data.gameName);
