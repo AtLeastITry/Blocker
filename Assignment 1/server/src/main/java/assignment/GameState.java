@@ -263,7 +263,7 @@ public final class GameState {
         }
 
         if (playerId == this.getNumberOfPlayers()) {
-            return getNextPlayerTurn(1, activePlayers);
+            return getNextPlayerTurn(0, activePlayers);
         }
 
         playerId++;
