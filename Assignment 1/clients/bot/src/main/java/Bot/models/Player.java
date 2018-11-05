@@ -1,11 +1,14 @@
 package Bot.models;
 
 public class Player {
-    public String username;
     public int id;
     public InfluenceCard selectedCard;
     public InfluenceCard[] powerUps;
     
+    public Boolean isHost() {
+        return id == 1;
+    }
+
     public String username() {
         return "player " + this.id;
     }

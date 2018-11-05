@@ -13,10 +13,9 @@ public class App
 {
     public static void main( String[] args ) throws URISyntaxException
     {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 4; i++) {
             IAgent agent = new RandomAgent();
-
-            agent.run();
-        }
+            agent.run();   
+        }        
     }
 }

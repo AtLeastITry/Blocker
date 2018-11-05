@@ -2,6 +2,9 @@ package Bot.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
+
+import org.java_websocket.handshake.ServerHandshake;
 
 import Bot.ai.IAgent;
 import Bot.models.Message;
@@ -15,31 +18,23 @@ public class Client {
     }
 
     public <T> void Send(Message<T> message) {
-        _socket.send(JsonHelper.GSON.toJson(message));
+        String request = JsonHelper.GSON.toJson(message);
+        _socket.send(request);
     }
 
     public void open(IAgent agent) {
-        // check if the socket is closed
-        if (_socket.isClosed()) {
-            // connect to the server
-            _socket.connect();
+        // connect to the server
+        _socket.connect();
 
-            // add reference of the agent
-            _socket.attach(agent);
-
-            // ask server for initial information
-            this.Send(new Message<String>(MessageType.INIT, "client", ""));
-        }
+        // add reference of the agent
+        _socket.attach(agent);
     }
 
     public void close() {
-        // check if the socket is open
-        if (_socket.isOpen()) {
-            // close the connection
-            _socket.close();
+        // close the connection
+        _socket.close();
 
-            // remove reference of the agent
-            _socket.detach();
-        }
+        // remove reference of the agent
+        _socket.detach();
     }
 }

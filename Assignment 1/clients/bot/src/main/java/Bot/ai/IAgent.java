@@ -1,18 +1,17 @@
 package Bot.ai;
 
-import java.util.ArrayList;
-
-import Bot.models.Game;
-import Bot.models.Move;
-import Bot.models.Player;
+import Bot.models.Responses.*;
 
 public interface IAgent {
     public void run();
-    public void updateGame(Game game);
-    public void updatePlayer(Player player);
-    public void updateAvaliableGames(ArrayList<String> games);
-    public void updateAvaliableGames(String newGame);
-    public void moveResult(boolean moveAllowed, Move move);
     public void makeMove() throws InterruptedException;
-    public void initialise();
+
+    public void allGamesAction(AllGamesResponse response);
+    public void checkMultipleMoveAction(CheckMultipleMovesResponse response);
+    public void hostAction(HostResponse response);
+    public void joinAction(JoinResponse response);
+    public void leaveAction(LeaveResponse response);
+    public void newGameAction(NewGameResponse response);
+    public void playerMoveAction(PlayerMoveResponse response);
+    public void startAction(StartResponse response);
 }

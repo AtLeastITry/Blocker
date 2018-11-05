@@ -4,10 +4,8 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import Bot.ai.IAgent;
-import Bot.models.Event;
-import Bot.models.MessageType;
-import Bot.models.Responses.HostResponse;
-import Bot.util.JsonHelper;
+import Bot.models.*;
+import Bot.models.Responses.*;
 
 import java.net.URI;
 
@@ -28,7 +26,8 @@ public class GameWebSocketClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-
+        String request = JsonHelper.GSON.toJson(new Message<String>(MessageType.ALL_GAMES, "client", ""));
+        send(request);
     }
 
     @Override
@@ -38,22 +37,36 @@ public class GameWebSocketClient extends WebSocketClient {
 
             switch(event.type) {
                 case MessageType.PLAYER_MOVE:
+                    PlayerMoveResponse playerMoveResponse = JsonHelper.GSON.fromJson(event.data, PlayerMoveResponse.class);
+                    _agent.playerMoveAction(playerMoveResponse);
+                    break;
                 case MessageType.HOST:
-                    HostResponse response = JsonHelper.GSON.fromJson(event.data, HostResponse.class);
-                    _agent.updateGame(response.game);
-                    _agent.updatePlayer(response.player);
+                    HostResponse hostResponse = JsonHelper.GSON.fromJson(event.data, HostResponse.class);
+                    _agent.hostAction(hostResponse);
                     break;
                 case MessageType.ALL_GAMES:
+                    AllGamesResponse allGamesResponse = JsonHelper.GSON.fromJson(event.data, AllGamesResponse.class);
+                    _agent.allGamesAction(allGamesResponse);
                     break;
                 case MessageType.NEW_GAME:
+                    NewGameResponse newGameResponse = JsonHelper.GSON.fromJson(event.data, NewGameResponse.class);
+                    _agent.newGameAction(newGameResponse);
                     break;
                 case MessageType.START:
+                    StartResponse startResponse = JsonHelper.GSON.fromJson(event.data, StartResponse.class);
+                    _agent.startAction(startResponse);
                     break;
                 case MessageType.JOIN:
+                    JoinResponse joinResponse = JsonHelper.GSON.fromJson(event.data, JoinResponse.class);
+                    _agent.joinAction(joinResponse);
                     break;
-                case MessageType.CHECK_MOVE:
+                case MessageType.CHECK_MULTIPLE_MOVES:
+                    CheckMultipleMovesResponse checkMultipleMovesResponse = JsonHelper.GSON.fromJson(event.data, CheckMultipleMovesResponse.class);
+                    _agent.checkMultipleMoveAction(checkMultipleMovesResponse);
                     break;
                 case MessageType.LEAVE:
+                    LeaveResponse leaveResponse = JsonHelper.GSON.fromJson(event.data, LeaveResponse.class);
+                    _agent.leaveAction(leaveResponse);
                     break;
             }
         }

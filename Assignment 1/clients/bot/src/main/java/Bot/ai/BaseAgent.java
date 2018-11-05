@@ -7,15 +7,20 @@ import java.util.Set;
 import Bot.util.*;
 import Bot.models.*;
 import Bot.models.Requests.*;
+import Bot.models.Responses.*;
 
 public abstract class BaseAgent implements IAgent {
     protected final Client _client = new Client(Config.SERVER);
 
-    public BaseAgent() throws URISyntaxException {}
+    public BaseAgent() throws URISyntaxException {
+        _avaliableGameNames = new ArrayList<>();
+        _initialised = false;
+    }
 
     protected Player _player;
     protected Game _game;
     protected ArrayList<String> _avaliableGameNames;
+    protected Boolean _initialised;
 
     protected Set<InfluenceCard> getPlayerCards() {
         return this._game.getPlayerCards(this._player.id);
@@ -46,28 +51,12 @@ public abstract class BaseAgent implements IAgent {
         }
 
         if (_game.playerTurn == _player.id) {
-            Thread.sleep(1000);
-
             Move move = this.calculateNextMove();
 
-            _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username, new MoveRequest(_game.name, move)));
+            Thread.sleep(1000);
+
+            _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, move)));
         }
-    }
-
-    public void updateGame(Game game) {
-        _game = game;
-    }
-
-    public void updatePlayer(Player player) {
-        _player = player;
-    }
-
-    public void updateAvaliableGames(ArrayList<String> games) {
-        _avaliableGameNames = games;
-    }
-
-    public void updateAvaliableGames(String newGame) {
-        _avaliableGameNames.add(newGame);
     }
 
     public void initialise() {
@@ -80,5 +69,63 @@ public abstract class BaseAgent implements IAgent {
         return;
     }
 
-    public abstract void moveResult(boolean moveAllowed, Move move);
+    public void allGamesAction(AllGamesResponse response) {
+        _avaliableGameNames = response.gameNames;
+
+        if (!_initialised) {
+            this.initialise();
+            _initialised = true;
+        }
+    }
+
+    public abstract void checkMultipleMoveAction(CheckMultipleMovesResponse response);
+
+    public void hostAction(HostResponse response) {
+        _game = response.game;
+        _player =  new Player(response.playerId);
+    }
+
+    public void joinAction(JoinResponse response) {
+        _game = response.game;
+        _player =  new Player(response.playerId);
+
+        if (_player.isHost() && _game.players.size() == 5) {
+            _client.Send(new Message<Request>(MessageType.START, _player.username(), new Request(_game.name)));
+        }
+    }
+
+    public void leaveAction(LeaveResponse response) {
+        if (response.hasLeft) {
+            _player = null;
+            _game = null;
+        }
+        else {
+            _game = response.game;
+        }
+    }
+
+    public void newGameAction(NewGameResponse response) {
+        _avaliableGameNames.add(response.gameName);
+    }
+
+    public void playerMoveAction(PlayerMoveResponse response) {
+        _game = response.game;
+        this.startMove();
+    }
+
+    public void startAction(StartResponse response) {
+        _game = response.game;
+        
+        this.startMove();
+    }
+
+    private void startMove() {
+        if (_game.playerTurn == _player.id) {
+            try {
+                this.makeMove();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

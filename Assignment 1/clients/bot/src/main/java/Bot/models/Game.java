@@ -9,6 +9,10 @@ public class Game {
     public Boolean finished;
     public String name;
     public int playerTurn;
+    
+    public int getStoneId(int x, int y) {
+        return board[x][y];
+    }
 
     public int getNumPlayers() {
         return players.size();

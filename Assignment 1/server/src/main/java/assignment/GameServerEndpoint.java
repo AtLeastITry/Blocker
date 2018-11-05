@@ -56,6 +56,9 @@ public class GameServerEndpoint {
             case MessageType.CHECK_MOVE:
                 _gameService.checkMove(session, message);
                 break;
+            case MessageType.CHECK_MULTIPLE_MOVES:
+                _gameService.checkMultipleMoves(session, message);
+                break;
             case MessageType.LEAVE:
                 _gameService.leave(session, message);
                 break;

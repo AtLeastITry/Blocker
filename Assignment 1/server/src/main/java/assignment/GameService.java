@@ -191,4 +191,29 @@ public class GameService {
 
 
     }
+
+    public void checkMultipleMoves(Session session, Message message) throws IOException, EncodeException {
+        CheckMultipleMovesRequest request = new Gson().fromJson(message.data, CheckMultipleMovesRequest.class);
+        for (GameState game: games) {
+            if (game.name.equals(request.gameName)) {
+                ArrayList<MoveResponse> moves = new ArrayList<>();
+                
+                for(Move move: request.moves) {
+                    boolean isAllowed = game.isMoveAllowed(move, request.playerId);
+                    moves.add(new MoveResponse(move, isAllowed));
+                }
+                
+                Message reply = new Message();
+                reply.type = MessageType.CHECK_MULTIPLE_MOVES;
+                reply.sender = "Server";
+                reply.data = new Gson().toJson(new CheckMultipleMovesResponse(true, moves));
+
+                session.getBasicRemote().sendObject(reply);
+
+                break;
+            }
+        }
+
+
+    }
 }

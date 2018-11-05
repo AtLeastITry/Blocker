@@ -14,6 +14,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +26,9 @@ public class GameDeserializer implements JsonDeserializer<Game> {
         JsonObject jsonObject = json.getAsJsonObject();
         Game game = new Game();
         
-        game.board = GSON.fromJson(jsonObject.get("_board").getAsString(), new TypeToken<int[][]>(){}.getType());
-        game.influenceCards = GSON.fromJson(jsonObject.get("_influenceCards").getAsString(), new TypeToken<Map<Integer, Set<InfluenceCard>>>(){}.getType());
-        game.players = GSON.fromJson(jsonObject.get("_userPlayers").getAsString(), new TypeToken<Map<Integer, Set<UserPlayer>>>(){}.getType());
+        game.board = GSON.fromJson(jsonObject.get("_board").toString(), new TypeToken<int[][]>(){}.getType());
+        game.influenceCards = GSON.fromJson(jsonObject.get("_influenceCards").toString(), new TypeToken<Map<Integer, Set<InfluenceCard>>>(){}.getType());
+        game.players = GSON.fromJson(jsonObject.get("_userPlayers").toString(), new TypeToken<ArrayList<UserPlayer>>(){}.getType());
         game.inProgress = jsonObject.get("_inProgress").getAsBoolean();
         game.finished = jsonObject.get("_gameFinished").getAsBoolean();
         game.name = jsonObject.get("name").getAsString();
