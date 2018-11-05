@@ -17,4 +17,18 @@ public class Game {
     public Set<InfluenceCard> getPlayerCards(int playerId) {
         return influenceCards.get(playerId);
     }
+
+    public UserPlayer getPlayer(int playerId) {
+        UserPlayer player = null;
+
+        for (int i = 0; i < players.size(); i++) {
+            UserPlayer temp = players.get(i);
+            if (temp.playerId == playerId) {
+                player = temp;
+                break;
+            }
+        }
+
+        return player;
+    }
 }

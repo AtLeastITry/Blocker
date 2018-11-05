@@ -5,11 +5,14 @@ public class Player {
     public int id;
     public InfluenceCard selectedCard;
     public InfluenceCard[] powerUps;
+    
+    public String username() {
+        return "player " + this.id;
+    }
 
     public Player() {}
 
-    public Player(String username, int id) {
-        this.username = username;
+    public Player(int id) {
         this.id = id;
     }
 }

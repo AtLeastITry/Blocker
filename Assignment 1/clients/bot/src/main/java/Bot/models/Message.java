@@ -8,7 +8,7 @@ public class Message<T> {
     public String sender;
     public T data;
 
-    public Message(T data) {
+    public Message(int type, String sender, T data) {
         sent = new Date();
         this.data = data;
     }
