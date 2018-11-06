@@ -11,11 +11,12 @@ import Bot.ai.RandomAgent;
  */
 public class App 
 {
-    public static void main( String[] args ) throws URISyntaxException
+    public static void main( String[] args ) throws URISyntaxException, InterruptedException
     {
         for (int i = 0; i < 4; i++) {
+            Thread.sleep(1000);
             IAgent agent = new RandomAgent();
             agent.run();   
-        }        
+        }   
     }
 }

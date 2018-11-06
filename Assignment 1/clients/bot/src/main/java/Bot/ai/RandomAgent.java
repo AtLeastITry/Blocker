@@ -2,7 +2,10 @@ package Bot.ai;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import Bot.models.*;
 import Bot.models.Requests.*;
@@ -13,11 +16,11 @@ public class RandomAgent extends BaseAgent {
         super();
     }
 
-    @Override
-    public Move calculateNextMove() {
-        Move move = new Move();
+    private static final Map<Integer, ArrayList<Coordinates>> positionsCache = new HashMap<>();
 
-        ArrayList<Coordinates> currentPositions = new ArrayList<>();
+    @Override
+    public void triggerMove() {
+        Move move = new Move();
 
         for (int i = 0; i < _game.board.length; i++) {
             int[] row = _game.board[i];
@@ -25,15 +28,23 @@ public class RandomAgent extends BaseAgent {
             for (int j = 0; j < row.length; j++) {
                 int column = row[j];
 
-                if (column == _player.id) {
-                    currentPositions.add(new Coordinates(i, j));
+                ArrayList<Coordinates> temp = new ArrayList<>();
+
+                if(positionsCache.containsKey(column)) {
+                    temp.addAll(positionsCache.get(column));
                 }
+
+                temp.add(new Coordinates(i, j));
+
+                positionsCache.put(column, temp);
             }
         }
 
         ArrayList<Move> movesToCheck = new ArrayList<>();
 
-        for(Coordinates coordinates: currentPositions) {
+        ArrayList<Coordinates> currentCoordinates = positionsCache.get(_player.id);
+
+        for(Coordinates coordinates: currentCoordinates) {
             Move downMove = new Move();
             downMove.firstMove = new Coordinates(coordinates.x + 1, coordinates.y);
             Move upMove = new Move();
@@ -50,8 +61,6 @@ public class RandomAgent extends BaseAgent {
         }
 
         _client.Send(new Message<CheckMultipleMovesRequest>(MessageType.CHECK_MULTIPLE_MOVES, _player.username(), new CheckMultipleMovesRequest(_game.name, movesToCheck, _player.id)));
-
-        return move;
     }
 
     @Override
@@ -65,10 +74,37 @@ public class RandomAgent extends BaseAgent {
 
         Random r = new Random();
 
-        int moveIndex = r.nextInt(movesAllowed.size());
+        if (movesAllowed.size() < 1) {
+            Set<InfluenceCard> cards = _game.getPlayerCards(_player.id);
 
-        Move moveToTake = movesAllowed.get(moveIndex);
+            if (cards.contains(InfluenceCard.FREEDOM)) {
+                Move moveToTake = new Move();
+                ArrayList<Coordinates> freeCoordinates = positionsCache.get(0);
+                int coordinatesIndex = r.nextInt(freeCoordinates.size());
+                moveToTake.card = InfluenceCard.FREEDOM;
+                moveToTake.firstMove = freeCoordinates.get(coordinatesIndex);
+                _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, moveToTake)));
 
-        _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, moveToTake)));
+                return;
+            }
+            else if (cards.contains(InfluenceCard.REPLACEMENT)) {
+                Move moveToTake = new Move();
+                int moveIndex = r.nextInt(response.moves.size());
+                MoveResponse temp = response.moves.get(moveIndex);
+                moveToTake.card = InfluenceCard.REPLACEMENT;
+                moveToTake.firstMove = temp.move.firstMove;
+                _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, moveToTake)));
+
+                return;
+            }
+        }
+        else {
+            Move moveToTake = new Move();
+            int moveIndex = r.nextInt(movesAllowed.size());    
+            moveToTake = movesAllowed.get(moveIndex);
+            _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, moveToTake)));
+
+            return;
+        }
 	}
 }

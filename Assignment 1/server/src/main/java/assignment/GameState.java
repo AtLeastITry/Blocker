@@ -225,6 +225,11 @@ public final class GameState {
 
     private boolean validCoordinate(int playerId, Coordinates next, InfluenceCard card) {
         Integer stoneId = getStoneId(next);
+        
+        if (stoneId == null) {
+            return false;
+        }
+
         if (stoneId != null && stoneId != 0 && card != InfluenceCard.REPLACEMENT) {
             return false;
         }

@@ -202,6 +202,23 @@ public class GameService {
                     boolean isAllowed = game.isMoveAllowed(move, request.playerId);
                     moves.add(new MoveResponse(move, isAllowed));
                 }
+
+                ArrayList<MoveResponse> brokenMoves = new ArrayList<>();
+
+                for (int i = 0; i < moves.size(); i++) {
+                    if (moves.get(i).allowed) {
+                        int x = moves.get(i).move.getFirstMove().getX();
+                        int y = moves.get(i).move.getFirstMove().getY();
+
+                        if (x < 0 || x > 5 || y < 0 || y > 9) {
+                            brokenMoves.add(moves.get(i));
+                        }                        
+                    }
+                }
+
+                for (MoveResponse move : brokenMoves) {
+                    game.isMoveAllowed(move.move, request.playerId);
+                }
                 
                 Message reply = new Message();
                 reply.type = MessageType.CHECK_MULTIPLE_MOVES;

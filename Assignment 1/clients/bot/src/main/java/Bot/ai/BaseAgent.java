@@ -43,7 +43,7 @@ public abstract class BaseAgent implements IAgent {
         _client.open(this);
     }
 
-    public abstract Move calculateNextMove();
+    public abstract void triggerMove();
 
     public void makeMove() throws InterruptedException {
         if (playerLost() || playerWon()) {
@@ -51,11 +51,8 @@ public abstract class BaseAgent implements IAgent {
         }
 
         if (_game.playerTurn == _player.id) {
-            Move move = this.calculateNextMove();
-
+            this.triggerMove();
             Thread.sleep(1000);
-
-            _client.Send(new Message<MoveRequest>(MessageType.PLAYER_MOVE, _player.username(), new MoveRequest(_game.name, move)));
         }
     }
 
@@ -90,6 +87,11 @@ public abstract class BaseAgent implements IAgent {
         _player =  new Player(response.playerId);
 
         if (_player.isHost() && _game.players.size() == 5) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             _client.Send(new Message<Request>(MessageType.START, _player.username(), new Request(_game.name)));
         }
     }
