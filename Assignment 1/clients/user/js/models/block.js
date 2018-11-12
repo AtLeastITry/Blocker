@@ -3,11 +3,15 @@ window.block = function(playerId) {
     this.newPlayerId = null;
     this.background = "";
 
+    this.displayId = this.playerId;
+
     this.updateBackground = function() {
         let tempPlayerId = this.playerId;
         if (this.newPlayerId != null && this.newPlayerId != "") {
             tempPlayerId = this.newPlayerId;
         }
+
+        this.displayId = tempPlayerId;
 
         switch(tempPlayerId) {
             case 0:

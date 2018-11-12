@@ -11,12 +11,12 @@ public class MinMaxAgent extends BaseAgent {
     }
 
     @Override
-    public Move calculateNextMove() {
-        return new Move();
-    }
-
-    @Override
     public void checkMultipleMoveAction(CheckMultipleMovesResponse response) {
 
 	}
+
+    @Override
+    public void triggerMove() {
+
+    }
 }

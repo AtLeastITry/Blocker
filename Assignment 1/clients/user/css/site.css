@@ -2,7 +2,7 @@
     margin: 0.05rem;
 }
 
-.game-block div {
+.game-block .overlay {
     display: block;
     padding-top: 100%;
     cursor: pointer;
@@ -10,18 +10,35 @@
     border-radius: 8px;
 }
 
-.moveAvaliable .game-block div:hover,
-.moveAvaliable .game-block div.selected {
+.game-block .content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+}
+
+.game-block .content .title {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+}
+
+.moveAvaliable .game-block .overlay:hover,
+.moveAvaliable .game-block .overlay.selected {
     background: #e6e6e6;
 }
 
 .powerup {
     position: relative;
-    border-radius: 100%;
-    max-width: 65px;
+    border-radius: 5px;
+    max-width: 180px;
     display: block;
     margin: auto;
     opacity: 0.5;
+    height: 242px;
+    border: 4px solid rgba(0,0,0,.125);
 }
 
 
@@ -57,15 +74,18 @@
 
 .move-text {
     text-align: center;
-    top: 95%;
+    top: 50%;
     transform: translateY(-50%);
-    height: 100%;
     left: 45%;
     position: absolute;
 }
 
 .moveInProgress {
     opacity: 0.3;
+}
+
+.gameFinished {
+    opacity: 0.1;
 }
 
 .player-block {
@@ -76,4 +96,14 @@
     vertical-align: middle;
     border-radius: 3px;
     border: 1px solid rgba(0,0,0,.17);
+}
+
+.score-medal.first {
+    color: #C98910
+}
+.score-medal.second {
+    color: #A8A8A8
+}
+.score-medal.third {
+    color: #965A38
 }

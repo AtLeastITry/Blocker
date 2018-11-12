@@ -20,6 +20,43 @@ var app = new Vue({
         }
     },
     computed: {
+        gameSummary: function() {
+            var result = []
+            if (this.game) {
+                for (let i = 0; i < this.game.board.length; i++) {
+                    const row = this.game.board[i];
+                    for (let j = 0; j < row.length; j++) {
+                        let column = row[j];
+                        if (column.playerId == 0) {
+                            continue;
+                        }
+    
+                        let found = false;
+    
+                        for (let h = 0; h < result.length; h++) {
+                            let item = result[h];
+                            if (item.id == column.playerId) {
+                                item.score = item.score + 1;
+                                found = true;
+                                break;
+                            }
+                        }
+    
+                        if (result < 1 || !found) {
+                            result.push({
+                                id: column.playerId,
+                                name: 'player ' + column.playerId,
+                                score: 1
+                            });
+                        }
+                    }
+                }
+                
+                result.sort((a, b) => (a.score > b.score) ? -1 : ((b.score > a.score) ? 1 : 0));
+            }
+
+            return result;
+        },
         powerupSelected: function() {
             let selected = false;
 
@@ -77,11 +114,7 @@ var app = new Vue({
         moveText: function() {
             if (!this.canMove && this.game.inProgress) {
                 if (this.playerLost) {
-                    return "You have lost the game";
-                }
-
-                if (this.playerWon) {
-                    return "You have won the game";
+                    return "You are blocked";
                 }
 
                 return "player " + this.game.playerTurn + "'s turn";
@@ -210,6 +243,9 @@ var app = new Vue({
                         this.player = new window.playerModel(this.username, data.playerId);
                         this.playing = true;
                         this.playerCards = this.game.getInfluenceCards(this.player.id);
+                        Vue.nextTick(function () {
+                            $('[data-toggle="popover"]').popover({ trigger: 'hover' })
+                        });
                         break;
                     case window.MessageType.JOIN: 
                         this.game = new window.gameModel(data.game);
@@ -217,6 +253,9 @@ var app = new Vue({
                         this.player = new window.playerModel(this.username, data.playerId);
                         this.showJoinOptions = false;
                         this.playerCards = this.game.getInfluenceCards(this.player.id);
+                        Vue.nextTick(function () {
+                            $('[data-toggle="popover"]').popover({ trigger: 'hover' })
+                        });
                         break;
                     case window.MessageType.LEAVE: 
                         if (data.hasLeft) {
@@ -236,6 +275,9 @@ var app = new Vue({
                         this.chosenCoordinates = [];
                         this.player.selectedCard = "";
                         this.playerCards = this.game.getInfluenceCards(this.player.id);
+                        Vue.nextTick(function () {
+                            $('[data-toggle="popover"]').popover({ trigger: 'hover' })
+                        });
                         break;
                     case window.MessageType.NEW_GAME:
                         this.avaliableGameNames.push(data.gameName);

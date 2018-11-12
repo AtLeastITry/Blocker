@@ -154,6 +154,7 @@ public final class GameState {
             }
         }
 
+        this._influenceCards.remove(playerId);
         this._influenceCards.put(playerId, newCards);
     }
     
@@ -217,8 +218,8 @@ public final class GameState {
             return false;
         }
 
-        boolean canMoveX = next.getX() != current.getX() - 1 || next.getX() != current.getX() + 1;
-        boolean canMoveY = next.getY() != current.getY() - 1 || next.getY() != current.getY() + 1;
+        boolean canMoveX = next.getX() == current.getX() - 1 || next.getX() == current.getX() + 1;
+        boolean canMoveY = next.getY() == current.getY() - 1 || next.getY() == current.getY() + 1;
 
         return canMoveX && canMoveY;
     }
@@ -239,16 +240,26 @@ public final class GameState {
             return true;
         }
 
-        Integer down = getStoneId(new Coordinates(next.getX(),next.getY() + 1));
-        Integer up = getStoneId(new Coordinates(next.getX(),next.getY() - 1));
-        Integer left = getStoneId(new Coordinates(next.getX() - 1,next.getY()));
-        Integer right = getStoneId(new Coordinates(next.getX() + 1,next.getY()));
-        boolean isDownMove = down != null && down == playerId;
-        boolean isUpMove = up != null && up == playerId;
-        boolean isLeftMove = left != null && left == playerId;
+        Integer right = getStoneId(new Coordinates(next.getX(),next.getY() + 1));
+        Integer rightUp = getStoneId(new Coordinates(next.getX() - 1,next.getY() + 1));
+        Integer rightDown = getStoneId(new Coordinates(next.getX() + 1,next.getY() + 1));        
+        Integer left = getStoneId(new Coordinates(next.getX(),next.getY() - 1));
+        Integer leftUp = getStoneId(new Coordinates(next.getX() -1 ,next.getY() - 1));
+        Integer leftDown = getStoneId(new Coordinates(next.getX() + 1,next.getY() - 1));
+        Integer up = getStoneId(new Coordinates(next.getX() - 1,next.getY()));
+        Integer down = getStoneId(new Coordinates(next.getX() + 1,next.getY()));        
+        
         boolean isRightMove = right != null && right == playerId;
+        boolean isRightUpMove = rightUp != null && rightUp == playerId;
+        boolean isRightDownMove = rightDown != null && rightDown == playerId;
+        boolean isLeftMove = left != null && left == playerId;
+        boolean isLeftUpMove = leftUp != null && leftUp == playerId;
+        boolean isLeftDownMove = leftDown != null && leftDown == playerId;
+        boolean isUpMove = up != null && up == playerId;
+        boolean isDownMove = down != null && down == playerId;
+        
 
-        return isDownMove || isUpMove || isLeftMove || isRightMove;
+        return isRightMove || isRightUpMove || isRightDownMove || isLeftMove || isLeftUpMove || isLeftDownMove || isUpMove || isDownMove;
     }
 
     // Checks if the specified move is allowed for the given player.
