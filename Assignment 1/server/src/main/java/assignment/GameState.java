@@ -218,10 +218,12 @@ public final class GameState {
             return false;
         }
 
-        boolean canMoveX = next.getX() == current.getX() - 1 || next.getX() == current.getX() + 1;
-        boolean canMoveY = next.getY() == current.getY() - 1 || next.getY() == current.getY() + 1;
+        boolean canMoveX = next.getX() == current.getX() - 1 || next.getX() == current.getX() + 1 || next.getX() == current.getX();
+        boolean canMoveY = next.getY() == current.getY() - 1 || next.getY() == current.getY() + 1 || next.getY() == current.getY();
 
-        return canMoveX && canMoveY;
+        boolean sameMove = next.getX() == current.getX() && next.getY() == current.getY();
+
+        return !sameMove && canMoveX && canMoveY;
     }
 
     private boolean validCoordinate(int playerId, Coordinates next, InfluenceCard card) {
@@ -264,10 +266,14 @@ public final class GameState {
 
     // Checks if the specified move is allowed for the given player.
     public boolean isMoveAllowed(Move move, int player) {
+        boolean validSecondMove = true;
+
         if (move.getSecondMove() != null) {
-            if (!validCoordinates(player, move.getFirstMove(), move.getSecondMove(), move.getCard())) {
-                return false;
-            }
+            validSecondMove = validCoordinates(player, move.getFirstMove(), move.getSecondMove(), move.getCard()) || validCoordinate(player, move.getSecondMove(), move.getCard());
+        }
+
+        if (!validSecondMove) {
+            return false;
         }
 
         return validCoordinate(player, move.getFirstMove(), move.getCard());
