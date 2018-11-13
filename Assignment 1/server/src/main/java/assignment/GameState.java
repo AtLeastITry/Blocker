@@ -99,7 +99,7 @@ public final class GameState {
             rowLoop:
             for (int x = 0; x < this.getBoard().length; x++) {
                 for (int y = 0; y < this.getBoard()[i].length; y++) {
-                    Integer stoneId = getStoneId(new Coordinates(x, y));
+                    Integer stoneId = getStoneId(x, y);
 
                     if (hasFreedom && stoneId == 0) {
                         canMove = this.checkMove(x, y, InfluenceCard.FREEDOM, user.playerId);
@@ -200,21 +200,21 @@ public final class GameState {
         return _influenceCards.get(player);
     }
 
-    private Integer getStoneId(Coordinates current) {
-        if (current.getX() < 0 || current.getX() > 5) {
+    private Integer getStoneId(int x, int y) {
+        if (x < 0 || x > 5) {
             return null;
         }
 
-        if (current.getY() < 0 || current.getY() > 9) {
+        if (y < 0 || y > 9) {
             return null;
         }
 
-        return this.getBoard()[current.getX()][current.getY()];
+        return this.getBoard()[x][y];
     }
 
 
     private boolean validCoordinates(int playerId, Coordinates current, Coordinates next, InfluenceCard card) {
-        if (getStoneId(next) != 0 && card != InfluenceCard.REPLACEMENT) {
+        if (getStoneId(next.getX(), next.getY()) != 0 && card != InfluenceCard.REPLACEMENT) {
             return false;
         }
 
@@ -227,7 +227,7 @@ public final class GameState {
     }
 
     private boolean validCoordinate(int playerId, Coordinates next, InfluenceCard card) {
-        Integer stoneId = getStoneId(next);
+        Integer stoneId = getStoneId(next.getX(), next.getY());
         
         if (stoneId == null) {
             return false;
@@ -242,14 +242,14 @@ public final class GameState {
             return true;
         }
 
-        Integer right = getStoneId(new Coordinates(next.getX(),next.getY() + 1));
-        Integer rightUp = getStoneId(new Coordinates(next.getX() - 1,next.getY() + 1));
-        Integer rightDown = getStoneId(new Coordinates(next.getX() + 1,next.getY() + 1));        
-        Integer left = getStoneId(new Coordinates(next.getX(),next.getY() - 1));
-        Integer leftUp = getStoneId(new Coordinates(next.getX() -1 ,next.getY() - 1));
-        Integer leftDown = getStoneId(new Coordinates(next.getX() + 1,next.getY() - 1));
-        Integer up = getStoneId(new Coordinates(next.getX() - 1,next.getY()));
-        Integer down = getStoneId(new Coordinates(next.getX() + 1,next.getY()));        
+        Integer right = getStoneId(next.getX(),next.getY() + 1);
+        Integer rightUp = getStoneId(next.getX() - 1,next.getY() + 1);
+        Integer rightDown = getStoneId(next.getX() + 1,next.getY() + 1);        
+        Integer left = getStoneId(next.getX(),next.getY() - 1);
+        Integer leftUp = getStoneId(next.getX() -1 ,next.getY() - 1);
+        Integer leftDown = getStoneId(next.getX() + 1,next.getY() - 1);
+        Integer up = getStoneId(next.getX() - 1,next.getY());
+        Integer down = getStoneId(next.getX() + 1,next.getY());        
         
         boolean isRightMove = right != null && right == playerId;
         boolean isRightUpMove = rightUp != null && rightUp == playerId;

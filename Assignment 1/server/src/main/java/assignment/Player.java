@@ -9,6 +9,9 @@ public class Player implements PlayerLogic {
         this.setSessionId(sessionId);
     }
 
+    public Player() {
+    }
+
     public Move getNextMove() {
         return this._nextMove;
     }
