@@ -13,4 +13,5 @@ public class MessageType {
     public static final int SPECTATE_GAME = 9;
     public static final int GAMES_IN_PROGRESS = 10;
     public static final int NEW_GAME_IN_PROGRESS = 11;
+    public static final int GAME_REMOVED = 12;
 }

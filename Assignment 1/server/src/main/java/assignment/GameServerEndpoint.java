@@ -1,6 +1,11 @@
 package assignment;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
+
+import com.google.gson.Gson;
+
+import assignment.models.GameRemovedResponse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -16,7 +21,7 @@ public class GameServerEndpoint {
     }
 
     @OnClose
-    public void close(final Session session) {
+    public void close(final Session session) throws IOException, EncodeException {
         Player temp = null;
 
         for (Player player: _gameService.players) {
@@ -38,7 +43,17 @@ public class GameServerEndpoint {
             }
         }
         _gameService.users.remove(session);
-        _gameService.games.removeIf(game -> gamesToRemove.contains(game.name));
+        if (gamesToRemove.size() > 0) {
+            _gameService.games.removeIf(game -> gamesToRemove.contains(game.name));
+            Message reply = new Message();
+            reply.type = MessageType.GAME_REMOVED;
+            reply.sender = "Server";
+            reply.data = new Gson().toJson(new GameRemovedResponse(true, gamesToRemove.get(0)));
+
+            for (Session user: _gameService.users) {
+                user.getBasicRemote().sendObject(reply);
+            }
+        }        
     }
 
     @OnError

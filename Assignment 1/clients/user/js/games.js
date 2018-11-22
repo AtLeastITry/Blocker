@@ -24,6 +24,11 @@ var app = new Vue({
                         case window.MessageType.GAMES_IN_PROGRESS:
                             this.games = data.games;
                             break;
+                        case window.MessageType.GAME_REMOVED:
+                            this.games = this.games.filter(function(game) {
+                                return game.name != data.gameName;
+                            });
+                            break;
                     }
                 }
         },

@@ -10,5 +10,6 @@ window.MessageType = Object.freeze({
     "CHECK_MULTIPLE_MOVES": 8,
     "SPECTATE_GAME": 9,
     "GAMES_IN_PROGRESS": 10,
-    "NEW_GAME_IN_PROGRESS": 11
+    "NEW_GAME_IN_PROGRESS": 11,
+    "GAME_REMOVED": 12
 })

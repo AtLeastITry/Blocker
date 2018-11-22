@@ -86,6 +86,8 @@ public class GameService {
                     gameInProgressReply.type = MessageType.NEW_GAME_IN_PROGRESS;
                     gameInProgressReply.sender = "Server";
                     gameInProgressReply.data = new Gson().toJson(new NewGameInProgressResponse(true, new Game(game.name, game.getNumberOfPlayers())));
+
+                    userSession.getBasicRemote().sendObject(gameInProgressReply);
                 }
 
                 break;
