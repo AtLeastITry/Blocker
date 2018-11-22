@@ -24,7 +24,7 @@ public class Move {
             return false;
         }
 
-        if (!this.secondMove.equals(move.secondMove)) {
+        if (this.secondMove != null && move.secondMove != null && !this.secondMove.equals(move.secondMove)) {
             return false;
         }
 

@@ -30,6 +30,23 @@
     background: #e6e6e6;
 }
 
+.spectate .powerup {
+    max-width: 120px;
+    height: 182px;
+}
+
+.spectate .player-card {
+    opacity: 0.5;
+}
+
+.spectate .player-card.turn {
+    opacity: 1;
+}
+
+.spectate .game-block .overlay {
+    cursor: initial;
+}
+
 .powerup {
     position: relative;
     border-radius: 5px;

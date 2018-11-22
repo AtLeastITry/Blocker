@@ -156,7 +156,7 @@ public class GameService {
         for (int i = 0; i < games.size(); i++) {
             GameState game = games.get(i);
             if (game.name.equals(request.gameName)) {
-                game.addSpectator(session.toString());
+                game.addSpectator(session.getId());
 
                 Message reply = new Message();
                 reply.type = MessageType.SPECTATE_GAME;

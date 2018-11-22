@@ -27,12 +27,48 @@
                 </ul>
             </div>
         </nav>
-        <main id="app">
+        <main id="app" class="spectate">
             <div class="container-fluid mx-4 mb-4" style="height: 100vh;">
                 <div v-if="game != null">
-                        {{ game.gameName }}
+                    {{ game.gameName }}
+                    <div class="row mb-4" v-if="game.inProgress">
+                        <div class="col-xl-6 mb-4">
+                            <div class="row" v-for="(row, rowIndex) in game.board" :key="rowIndex">
+                                <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
+                                    <div class="overlay" v-bind:class="block.background">
+                                        <div class="content">
+                                            <h3 class="title">
+                                                {{ block.displayId }}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-6 mb-4" v-for="(player, index) in game.players">
+                                    <div class="card player-card" v-bind:class="{turn: game.playerTurn == player.playerId}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">player {{ player.playerId }}</h5>
+                                            <div class="card-text">
+                                                <div class="row">
+                                                    <div class="col" v-for="card in game.getInfluenceCards(player.playerId)">
+                                                        <div class="powerup bg-success selected" style="cursor: initial">
+                                                            <div class="content" data-toggle="popover" data-placement="left" v-bind:title="card.title" v-bind:data-content="card.description">
+                                                                <h3 class="title"><i v-bind:class="card.icon"></i></h3>
+                                                            </div>                                        
+                                                        </div>      
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
             </div>
 
 
@@ -46,6 +82,7 @@
         <script src="js/models/message-type.js"></script>
         <script src="js/models/message.js"></script>
         <script src="js/models/router.js"></script>
+        <script src="js/models/influence-cards.js"></script>
         <script src="js/models/block.js"></script>
         <script src="js/models/card.js"></script>
         <script src="js/models/game.js"></script>

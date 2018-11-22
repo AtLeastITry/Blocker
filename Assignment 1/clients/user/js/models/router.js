@@ -17,7 +17,6 @@ window.router = Object.freeze({
         return action == currentAction;
     },
     getParam(name) {
-        debugger;
         var url = window.location.href;
         name = name.replace(/[\[\]]/g, '\\$&');
         var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),

@@ -36,10 +36,13 @@ public class GameServerEndpoint {
 
         for (GameState gameState: _gameService.games) {
             if (gameState.checkPlayerInGame(session.getId())) {
-                gameState.removePlayer(temp.getMyPlayerId());
-                if (gameState.getNumberOfPlayers() == 0) {
-                    gamesToRemove.add(gameState.name);
+                if (temp != null) {
+                    gameState.removePlayer(temp.getMyPlayerId());
+                    if (gameState.getNumberOfPlayers() == 0) {
+                        gamesToRemove.add(gameState.name);
+                    }
                 }
+                gameState.removeSpectator(session.getId());
             }
         }
         _gameService.users.remove(session);

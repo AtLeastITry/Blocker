@@ -23,6 +23,7 @@ var app = new Vue({
                         case window.MessageType.PLAYER_MOVE:
                         case window.MessageType.SPECTATE_GAME:
                             this.game = new window.gameModel(data.game);
+                            window.gameTest = new window.gameModel(data.game);
                             break;
                     }
                 }
