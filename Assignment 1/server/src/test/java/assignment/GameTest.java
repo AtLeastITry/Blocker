@@ -1,5 +1,6 @@
 package assignment;
 
+import assignment.models.*;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
