@@ -2,6 +2,7 @@ package assignment;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 @ServerEndpoint(value = "/game", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
@@ -25,10 +26,19 @@ public class GameServerEndpoint {
         }
 
         _gameService.players.removeIf(player -> player.getSessionId() == session.getId());
+
+        ArrayList<String> gamesToRemove = new ArrayList<>();
+
         for (GameState gameState: _gameService.games) {
-            gameState.removePlayer(temp.getMyPlayerId());
+            if (gameState.checkPlayerInGame(session.getId())) {
+                gameState.removePlayer(temp.getMyPlayerId());
+                if (gameState.getNumberOfPlayers() == 0) {
+                    gamesToRemove.add(gameState.name);
+                }
+            }
         }
         _gameService.users.remove(session);
+        _gameService.games.removeIf(game -> gamesToRemove.contains(game.name));
     }
 
     @OnError
@@ -61,6 +71,12 @@ public class GameServerEndpoint {
                 break;
             case MessageType.LEAVE:
                 _gameService.leave(session, message);
+                break;
+            case MessageType.SPECTATE_GAME:
+                _gameService.spectate(session, message);
+                break;
+            case MessageType.GAMES_IN_PROGRESS:
+                _gameService.gamesInProgress(session);
                 break;
         }
     }

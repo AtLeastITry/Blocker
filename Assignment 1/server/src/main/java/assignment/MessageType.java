@@ -10,4 +10,7 @@ public class MessageType {
     public static final int START = 6;
     public static final int CHECK_MOVE = 7;
     public static final int CHECK_MULTIPLE_MOVES = 8;
+    public static final int SPECTATE_GAME = 9;
+    public static final int GAMES_IN_PROGRESS = 10;
+    public static final int NEW_GAME_IN_PROGRESS = 11;
 }

@@ -8,6 +8,7 @@ public final class GameState {
     public static final int COLUMNS = 10;
     public String name;
     private ArrayList<UserPlayer> _userPlayers;
+    private ArrayList<String> _spectators; 
     private int[][] _board;
     private Map<Integer, Set<InfluenceCard>> _influenceCards;
     private boolean _inProgress;
@@ -16,6 +17,7 @@ public final class GameState {
     
     public GameState(String name) {
         _userPlayers = new ArrayList<>();
+        _spectators = new ArrayList<>();
         _board = new int[6][10];
         _influenceCards = new HashMap<>();
         _inProgress = false;
@@ -52,6 +54,13 @@ public final class GameState {
         boolean containsPlayer = false;
         for (UserPlayer player: _userPlayers) {
             if(player.sessionId.equals(sessionId)) {
+                containsPlayer = true;
+                break;
+            }
+        }
+
+        for (String spectator: _spectators) {
+            if(spectator.equals(sessionId)) {
                 containsPlayer = true;
                 break;
             }
@@ -163,6 +172,15 @@ public final class GameState {
         this._userPlayers.add(new UserPlayer(player.getMyPlayerId(), sessionId));
         this.addInfluenceCards(player.getMyPlayerId());
     }
+
+    public void addSpectator(String sessionId) {
+        this._spectators.add(sessionId);
+    }
+
+    public void removeSpectator(String sessionId) {
+        this._spectators.remove(sessionId);
+    }
+
     public void removePlayer(int playerId) {
         this._userPlayers.removeIf(userPlayer -> userPlayer.playerId == playerId);
         this.removePlayerInfluenceCards(playerId);

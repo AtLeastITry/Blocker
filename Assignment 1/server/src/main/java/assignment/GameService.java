@@ -81,6 +81,11 @@ public class GameService {
                     if (game.checkPlayerInGame(userSession.getId())) {
                         userSession.getBasicRemote().sendObject(reply);
                     }
+
+                    Message gameInProgressReply = new Message();
+                    gameInProgressReply.type = MessageType.NEW_GAME_IN_PROGRESS;
+                    gameInProgressReply.sender = "Server";
+                    gameInProgressReply.data = new Gson().toJson(new NewGameInProgressResponse(true, new Game(game.name, game.getNumberOfPlayers())));
                 }
 
                 break;
@@ -141,6 +146,41 @@ public class GameService {
         for (Session userSession: users) {
             userSession.getBasicRemote().sendObject(reply);
         }
+    }
+
+    public void spectate(Session session, Message message) throws IOException, EncodeException {
+        Request request = new Gson().fromJson(message.data, Request.class);
+
+        for (int i = 0; i < games.size(); i++) {
+            GameState game = games.get(i);
+            if (game.name.equals(request.gameName)) {
+                game.addSpectator(session.toString());
+
+                Message reply = new Message();
+                reply.type = MessageType.SPECTATE_GAME;
+                reply.sender = "Server";
+                reply.data = new Gson().toJson(new SpectateResponse(true, new Game(game.name, game.getNumberOfPlayers())));
+
+                session.getBasicRemote().sendObject(reply);
+            }
+        }
+    }
+
+    public void gamesInProgress(Session session) throws IOException, EncodeException {
+        List<Game> gamesInprogress = new ArrayList<>();
+
+        for (GameState game: games) {
+            if (game.getInPogress()) {
+                gamesInprogress.add(new Game(game.name, game.getNumberOfPlayers()));
+            }
+        }
+
+        Message reply = new Message();
+        reply.type = MessageType.GAMES_IN_PROGRESS;
+        reply.sender = "Server";
+        reply.data = new Gson().toJson(new GamesInProgressResponse(true, gamesInprogress));
+
+        session.getBasicRemote().sendObject(reply);
     }
 
     public void playerMove(Session session, Message message) throws IOException, EncodeException {

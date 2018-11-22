@@ -10,9 +10,25 @@
     </head>
 
     <body>
-
+        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-light">
+            <span class="navbar-brand" href="#">CE303 - Assignment</span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item" v-bind:class="{active: homeActive}">
+                        <a class="nav-link" href="#" @click.prevent="goToHome">Play</a>
+                    </li>
+                    <li class="nav-item" v-bind:class="{active: gamesActive}">
+                        <a class="nav-link" href="#" @click.prevent="goToGames">Spectate</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
         <main id="app">
-            <div class="container-fluid mx-4 mb-4" style="height: 100vh;">
+            <div class="container-fluid mr-4 mb-4" style="height: 100vh;">
                 <div class="row h-100 justify-content-center align-items-center" v-if="!playing">
                     <div class="col-4">
                         <div class="card">
@@ -145,7 +161,9 @@
         <script src="js/models/message.js"></script>
         <script src="js/models/playerMoveRequest.js"></script>
         <script src="js/models/checkMoveRequest.js"></script>
+        <script src="js/models/router.js"></script>
         <script src="js/site.js"></script>
+        <script src="js/nav.js"></script>
     </body>
 
 </html>
