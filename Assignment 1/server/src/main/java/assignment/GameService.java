@@ -161,7 +161,7 @@ public class GameService {
                 Message reply = new Message();
                 reply.type = MessageType.SPECTATE_GAME;
                 reply.sender = "Server";
-                reply.data = new Gson().toJson(new SpectateResponse(true, new Game(game.name, game.getNumberOfPlayers())));
+                reply.data = new Gson().toJson(new SpectateResponse(true, game));
 
                 session.getBasicRemote().sendObject(reply);
             }

@@ -1,9 +1,11 @@
 package assignment.models;
 
-public class SpectateResponse extends Response {
-    public Game game;
+import assignment.GameState;
 
-    public SpectateResponse(boolean success, Game game) {
+public class SpectateResponse extends Response {
+    public GameState game;
+
+    public SpectateResponse(boolean success, GameState game) {
         super(success);
         this.game = game;
     }

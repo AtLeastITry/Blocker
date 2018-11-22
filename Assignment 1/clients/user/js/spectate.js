@@ -9,9 +9,9 @@ var app = new Vue({
         this._socket = new WebSocket("ws://localhost:8080/assignment/game");
         this._socket.onmessage = this.onMessage;
         let self = this;
-        this.gameName = decodeURIComponent(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent('id').replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
+        this.gameName = window.router.getParam('id');
         this._socket.onopen = function() {
-            self._socket.send(self.buildAction(window.MessageType.SPECTATE_GAME, { name: self.gameName }));
+            self._socket.send(self.buildAction(window.MessageType.SPECTATE_GAME, { gameName: self.gameName }));
         }
     },
     methods: {
@@ -22,7 +22,7 @@ var app = new Vue({
                     switch(msg.type) {
                         case window.MessageType.PLAYER_MOVE:
                         case window.MessageType.SPECTATE_GAME:
-                            this.game = data.game;
+                            this.game = new window.gameModel(data.game);
                             break;
                     }
                 }

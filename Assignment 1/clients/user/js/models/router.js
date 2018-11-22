@@ -15,5 +15,15 @@ window.router = Object.freeze({
     isActive(action) {
         let currentAction = window.location.href.substr(window.location.href.lastIndexOf('/') + 1).replace('.html', '');
         return action == currentAction;
+    },
+    getParam(name) {
+        debugger;
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
 })
