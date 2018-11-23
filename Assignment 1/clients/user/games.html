@@ -10,7 +10,7 @@
     </head>
 
     <body>
-        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <span class="navbar-brand" href="#">CE303 - Assignment</span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -31,7 +31,7 @@
             <div class="container-fluid mb-4" style="height: 100vh;">
                 <div class="row mb-4">
                     <div v-show="games.length > 0" class="col-4 mt-4" v-for="(game, index) in games" :key="index" style="display: none;">
-                        <div class="card">
+                        <div class="card shadow-sm bg-white">
                             <div class="card-body">
                                 <h5 class="card-title">{{ game.name }}</h5>
                                 <p class="card-text"><b>Number of players:</b> {{ game.playerCount }}</p>

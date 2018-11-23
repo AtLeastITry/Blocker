@@ -10,7 +10,7 @@
     </head>
 
     <body>
-        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav id="nav" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <span class="navbar-brand" href="#">CE303 - Assignment</span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -28,27 +28,32 @@
             </div>
         </nav>
         <main id="app" class="spectate">
-            <div class="container-fluid mx-4 mb-4" style="height: 100vh;">
+            <div class="container-fluid mx-2 mb-4" style="height: 100vh;">
                 <div v-if="game != null">
                     {{ game.gameName }}
                     <div class="row mb-4" v-if="game.inProgress">
                         <div class="col-xl-6 mb-4">
-                            <div class="row" v-for="(row, rowIndex) in game.board" :key="rowIndex">
-                                <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
-                                    <div class="overlay" v-bind:class="block.background">
-                                        <div class="content">
-                                            <h3 class="title">
-                                                {{ block.displayId }}
-                                            </h3>
+                            <div class="card py-2 px-3 shadow-sm bg-white">
+                                <div class="card-body">
+                                    <div class="row" v-for="(row, rowIndex) in game.board" :key="rowIndex">
+                                        <div class="col game-block p-0" v-for="(block, blockIndex) in row" :key="blockIndex">
+                                            <div class="overlay" v-bind:class="block.background">
+                                                <div class="content">
+                                                    <h3 class="title">
+                                                        {{ block.displayId }}
+                                                    </h3>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </div>   
                                 </div>
-                            </div>    
+                            </div>
+                             
                         </div>
                         <div class="col">
                             <div class="row">
                                 <div class="col-6 mb-4" v-for="(player, index) in game.players">
-                                    <div class="card player-card" v-bind:class="{turn: game.playerTurn == player.playerId}">
+                                    <div class="card player-card shadow-sm bg-white" v-bind:class="{turn: game.playerTurn == player.playerId}">
                                         <div class="card-body">
                                             <h5 class="card-title">player {{ player.playerId }}</h5>
                                             <div class="card-text">
