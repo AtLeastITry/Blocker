@@ -247,7 +247,8 @@ public class GameService {
         this.games.stream()
                   .filter(game -> game.name.equals(request.gameName))
                   .forEach(game -> {
-                      boolean isAllowed = game.isMoveAllowed(request.move, request.playerId);
+                      MoveValidator validator = new MoveValidator(game);
+                      boolean isAllowed = validator.validate(request.move, request.playerId);
                       reply.data = new Gson().toJson(new CheckMoveResponse(true, isAllowed, request.move));
           
                       try {
@@ -267,8 +268,9 @@ public class GameService {
 
         this.games.stream().filter(game -> game.name.equals(request.gameName))
         .forEach(game -> {
+            MoveValidator validator = new MoveValidator(game);
             List<MoveResponse> moves = request.moves.stream()
-                                                    .map(move -> new MoveResponse(move, game.isMoveAllowed(move, request.playerId)))
+                                                    .map(move -> new MoveResponse(move, validator.validate(move, request.playerId)))
                                                     .collect(Collectors.toList());
 
             reply.data = new Gson().toJson(new CheckMultipleMovesResponse(true, moves));

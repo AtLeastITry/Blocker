@@ -1,5 +1,7 @@
 package assignment.models;
 
+import assignment.services.MoveValidator;
+
 public class Player implements PlayerLogic {
     private String _sessionId;
     private int _playerId;
@@ -43,7 +45,8 @@ public class Player implements PlayerLogic {
 
     @Override
     public Move makeMove(GameState game) {
-        if (game.isMoveAllowed(this.getNextMove(), this.getMyPlayerId())) {
+        MoveValidator validator = new MoveValidator(game);
+        if (validator.validate(this.getNextMove(), this.getMyPlayerId())) {
             game.makeMoves(this.getNextMove(), this.getMyPlayerId());
             return this.getNextMove();
         }

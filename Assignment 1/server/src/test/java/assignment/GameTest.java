@@ -1,6 +1,7 @@
 package assignment;
 
 import assignment.models.*;
+import assignment.services.MoveValidator;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -31,8 +32,8 @@ public class GameTest
         game.updateBoard(new Coordinates(0, 5), player.getMyPlayerId());
 
         Move move = new Move(InfluenceCard.FREEDOM, new Coordinates(5, 5), null);
-
-        boolean isMoveAllowed = game.isMoveAllowed(move, player.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player.getMyPlayerId());
         Assert.assertTrue(isMoveAllowed);
     }
 
@@ -49,7 +50,8 @@ public class GameTest
 
         Move move = new Move(InfluenceCard.FREEDOM, new Coordinates(0, 5), null);
 
-        boolean isMoveAllowed = game.isMoveAllowed(move, player2.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player2.getMyPlayerId());
         Assert.assertFalse(isMoveAllowed);
     }
 
@@ -66,7 +68,8 @@ public class GameTest
 
         Move move = new Move(InfluenceCard.REPLACEMENT, new Coordinates(0, 5), null);
 
-        boolean isMoveAllowed = game.isMoveAllowed(move, player2.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player2.getMyPlayerId());
         Assert.assertTrue(isMoveAllowed);
     }
 
@@ -80,7 +83,8 @@ public class GameTest
 
         Move move = new Move(InfluenceCard.DOUBLE, new Coordinates(1, 5), new Coordinates(2, 5));
 
-        boolean isMoveAllowed = game.isMoveAllowed(move, player1.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player1.getMyPlayerId());
         Assert.assertTrue(isMoveAllowed);
     }
 
@@ -94,7 +98,8 @@ public class GameTest
 
         Move move = new Move(null, new Coordinates(1, 5), null);
 
-        boolean isMoveAllowed = game.isMoveAllowed(move, player1.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player1.getMyPlayerId());
         Assert.assertTrue(isMoveAllowed);
     }
     
@@ -111,7 +116,8 @@ public class GameTest
 
         Move move = new Move(null, new Coordinates(0, 5), null);
 
-        boolean isMoveAllowed = game.isMoveAllowed(move, player2.getMyPlayerId());
+        MoveValidator validator = new MoveValidator(game);
+        boolean isMoveAllowed = validator.validate(move, player2.getMyPlayerId());
         Assert.assertFalse(isMoveAllowed);
     }
 }

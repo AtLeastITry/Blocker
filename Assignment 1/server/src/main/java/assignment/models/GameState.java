@@ -2,6 +2,8 @@ package assignment.models;
 
 import java.util.*;
 
+import assignment.services.MoveValidator;
+
 // This class (not yet fully implemented) will give access to the current state of the game.
 public final class GameState {
     public static final int ROWS = 6;
@@ -86,6 +88,8 @@ public final class GameState {
     }
 
     public void checkPlayersCanMove() {
+        MoveValidator validator = new MoveValidator(this);
+
         int playersLost = 0;
         for (int i = 0; i < this._userPlayers.size(); i++) {
             UserPlayer user = _userPlayers.get(i);
@@ -111,13 +115,13 @@ public final class GameState {
                     Integer stoneId = getStoneId(x, y);
 
                     if (hasFreedom && stoneId == 0) {
-                        canMove = this.checkMove(x, y, InfluenceCard.FREEDOM, user.playerId);
+                        canMove = validator.validate(x, y, InfluenceCard.FREEDOM, user.playerId);
                     }
                     else if(hasReplacement && stoneId != 0) {
-                        canMove = this.checkMove(x, y, InfluenceCard.REPLACEMENT, user.playerId);
+                        canMove = validator.validate(x, y, InfluenceCard.REPLACEMENT, user.playerId);
                     }
                     else if(stoneId == 0) {
-                        canMove = this.checkMove(x, y, null, user.playerId);
+                        canMove = validator.validate(x, y, null, user.playerId);
                     }
 
                     if (canMove == true) {
@@ -136,10 +140,7 @@ public final class GameState {
         }
     }
 
-    private boolean checkMove(int x, int y, InfluenceCard card, int playerId) {
-        Move move = new Move(card, new Coordinates(x, y), null);
-        return this.isMoveAllowed(move, playerId);
-    }
+    
 
     public void addInfluenceCards(int playerId) {
         HashSet<InfluenceCard> cards = new HashSet<>();
@@ -218,7 +219,7 @@ public final class GameState {
         return _influenceCards.get(player);
     }
 
-    private Integer getStoneId(int x, int y) {
+    public Integer getStoneId(int x, int y) {
         if (x < 0 || x > 5) {
             return null;
         }
@@ -228,73 +229,6 @@ public final class GameState {
         }
 
         return this.getBoard()[x][y];
-    }
-
-
-    private boolean validCoordinates(int playerId, Coordinates current, Coordinates next, InfluenceCard card) {
-        if (getStoneId(next.getX(), next.getY()) != 0 && card != InfluenceCard.REPLACEMENT) {
-            return false;
-        }
-
-        boolean canMoveX = next.getX() == current.getX() - 1 || next.getX() == current.getX() + 1 || next.getX() == current.getX();
-        boolean canMoveY = next.getY() == current.getY() - 1 || next.getY() == current.getY() + 1 || next.getY() == current.getY();
-
-        boolean sameMove = next.getX() == current.getX() && next.getY() == current.getY();
-
-        return !sameMove && canMoveX && canMoveY;
-    }
-
-    private boolean validCoordinate(int playerId, Coordinates next, InfluenceCard card) {
-        Integer stoneId = getStoneId(next.getX(), next.getY());
-        
-        if (stoneId == null) {
-            return false;
-        }
-
-        if (stoneId != null && stoneId != 0 && card != InfluenceCard.REPLACEMENT) {
-            return false;
-        }
-
-        if (card == InfluenceCard.FREEDOM && stoneId == 0) 
-        {
-            return true;
-        }
-
-        Integer right = getStoneId(next.getX(),next.getY() + 1);
-        Integer rightUp = getStoneId(next.getX() - 1,next.getY() + 1);
-        Integer rightDown = getStoneId(next.getX() + 1,next.getY() + 1);        
-        Integer left = getStoneId(next.getX(),next.getY() - 1);
-        Integer leftUp = getStoneId(next.getX() -1 ,next.getY() - 1);
-        Integer leftDown = getStoneId(next.getX() + 1,next.getY() - 1);
-        Integer up = getStoneId(next.getX() - 1,next.getY());
-        Integer down = getStoneId(next.getX() + 1,next.getY());        
-        
-        boolean isRightMove = right != null && right == playerId;
-        boolean isRightUpMove = rightUp != null && rightUp == playerId;
-        boolean isRightDownMove = rightDown != null && rightDown == playerId;
-        boolean isLeftMove = left != null && left == playerId;
-        boolean isLeftUpMove = leftUp != null && leftUp == playerId;
-        boolean isLeftDownMove = leftDown != null && leftDown == playerId;
-        boolean isUpMove = up != null && up == playerId;
-        boolean isDownMove = down != null && down == playerId;
-        
-
-        return isRightMove || isRightUpMove || isRightDownMove || isLeftMove || isLeftUpMove || isLeftDownMove || isUpMove || isDownMove;
-    }
-
-    // Checks if the specified move is allowed for the given player.
-    public boolean isMoveAllowed(Move move, int player) {
-        boolean validSecondMove = true;
-
-        if (move.getSecondMove() != null) {
-            validSecondMove = validCoordinates(player, move.getFirstMove(), move.getSecondMove(), move.getCard()) || validCoordinate(player, move.getSecondMove(), move.getCard());
-        }
-
-        if (!validSecondMove) {
-            return false;
-        }
-
-        return validCoordinate(player, move.getFirstMove(), move.getCard());
     }
 
     public int getNextPlayerTurn(int playerId, ArrayList<UserPlayer> activePlayers) {
