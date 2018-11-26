@@ -2,11 +2,11 @@ package assignment.socket;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
+import assignment.domain.GameHandler;
 import assignment.models.GameState;
 import assignment.models.Message;
 import assignment.models.MessageType;
 import assignment.models.Player;
-import assignment.services.GameService;
 import assignment.util.MessageDecoder;
 import assignment.util.MessageEncoder;
 import com.google.gson.Gson;
@@ -20,28 +20,29 @@ import java.util.ArrayList;
 @ServerEndpoint(value = "/game", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class GameServerEndpoint {
 
-    private static GameService _gameService = new GameService();
+    private final static Context _context = new Context();
+    private final GameHandler _handler = new GameHandler(_context);
 
     @OnOpen
     public void open(Session session) {
-        _gameService.users.add(session);
+        _context.users.add(session);
     }
 
     @OnClose
     public void close(final Session session) throws IOException, EncodeException {
         Player temp = null;
 
-        for (Player player: _gameService.players) {
+        for (Player player: _context.players) {
             if (player.getSessionId() == session.getId()) {
                 temp = player;
             }
         }
 
-        _gameService.players.removeIf(player -> player.getSessionId() == session.getId());
+        _context.players.removeIf(player -> player.getSessionId() == session.getId());
 
         ArrayList<String> gamesToRemove = new ArrayList<>();
 
-        for (GameState gameState: _gameService.games) {
+        for (GameState gameState: _context.games) {
             if (gameState.checkPlayerInGame(session.getId())) {
                 if (temp != null) {
                     gameState.removePlayer(temp.getMyPlayerId());
@@ -52,15 +53,15 @@ public class GameServerEndpoint {
                 gameState.removeSpectator(session.getId());
             }
         }
-        _gameService.users.remove(session);
+        _context.users.remove(session);
         if (gamesToRemove.size() > 0) {
-            _gameService.games.removeIf(game -> gamesToRemove.contains(game.name));
+            _context.games.removeIf(game -> gamesToRemove.contains(game.name));
             Message reply = new Message();
             reply.type = MessageType.GAME_REMOVED;
             reply.sender = "Server";
             reply.data = new Gson().toJson(new GameRemovedResponse(true, gamesToRemove.get(0)));
 
-            for (Session user: _gameService.users) {
+            for (Session user: _context.users) {
                 user.getBasicRemote().sendObject(reply);
             }
         }        
@@ -74,34 +75,34 @@ public class GameServerEndpoint {
     public void onMessage(Message message, Session session) throws IOException, EncodeException {
         switch(message.type) {
             case MessageType.HOST:
-                _gameService.host(session, message);
+                _handler.handleHostRequest(session, message);
                 break;
             case MessageType.PLAYER_MOVE:
-                _gameService.playerMove(session, message);
+                _handler.handleMakeMoveRequest(session, message);
                 break;
             case MessageType.ALL_GAMES:
-                _gameService.allGames();
+                _handler.handleAllGamesRequest();
                 break;
             case MessageType.START:
-                _gameService.start(session, message);
+                _handler.handleStartRequest(session, message);
                 break;
             case MessageType.JOIN:
-                _gameService.join(session, message);
+                _handler.handleJoinRequest(session, message);
                 break;
             case MessageType.CHECK_MOVE:
-                _gameService.checkMove(session, message);
+                _handler.handleCheckMoveRequest(session, message);
                 break;
             case MessageType.CHECK_MULTIPLE_MOVES:
-                _gameService.checkMultipleMoves(session, message);
+                _handler.handleCheckMultipleMovesRequest(session, message);
                 break;
             case MessageType.LEAVE:
-                _gameService.leave(session, message);
+                _handler.handleLeaveRequest(session, message);
                 break;
             case MessageType.SPECTATE_GAME:
-                _gameService.spectate(session, message);
+                _handler.handleSpectateRequest(session, message);
                 break;
             case MessageType.GAMES_IN_PROGRESS:
-                _gameService.gamesInProgress(session);
+                _handler.handleInProgressRequest(session);
                 break;
         }
     }
