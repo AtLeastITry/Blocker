@@ -93,21 +93,10 @@ public final class GameState {
         int playersLost = 0;
         for (int i = 0; i < this._userPlayers.size(); i++) {
             UserPlayer user = _userPlayers.get(i);
-            if (!user.canMove) {
-                playersLost++;
-                continue;
-            }
             boolean canMove = false;
             Set<InfluenceCard> cards = this.getAvailableInfluenceCards(user.playerId);
-            boolean hasFreedom = false;
-            boolean hasReplacement = false;
-
-            if (cards.contains(InfluenceCard.FREEDOM)) {
-               hasFreedom = true;
-            }
-            else if (cards.contains(InfluenceCard.REPLACEMENT)) {
-                hasReplacement = true;
-            }
+            boolean hasFreedom = cards.contains(InfluenceCard.FREEDOM);
+            boolean hasReplacement = cards.contains(InfluenceCard.REPLACEMENT);
 
             rowLoop:
             for (int x = 0; x < this.getBoard().length; x++) {
@@ -117,7 +106,7 @@ public final class GameState {
                     if (hasFreedom && stoneId == 0) {
                         canMove = validator.validate(x, y, InfluenceCard.FREEDOM, user.playerId);
                     }
-                    else if(hasReplacement && stoneId != 0) {
+                    else if(hasReplacement && stoneId != 0 && stoneId != user.playerId) {
                         canMove = validator.validate(x, y, InfluenceCard.REPLACEMENT, user.playerId);
                     }
                     else if(stoneId == 0) {

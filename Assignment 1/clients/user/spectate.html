@@ -30,8 +30,25 @@
         <main id="app" class="spectate">
             <div class="container-fluid mx-2 mb-4" style="height: 100vh;">
                 <div v-if="game != null">
-                    {{ game.gameName }}
-                    <div class="row mb-4" v-if="game.inProgress">
+                    <div class="card my-4 shadow-sm bg-white">
+                        <div class="card-body">
+                            {{ game.gameName }}
+                        </div>
+                    </div>                    
+                    <div class="move-text game-sumamry" v-if="game.finished">
+                            <div class="row mb-4" v-for="(player, index) in gameSummary" :key="index">
+                                <div class="col">
+                                    <h4 class="name">
+                                        {{ player.name }}
+                                        <i v-if="index < 3" class="fas fa-medal score-medal" v-bind:class="{ 'first': index == 0, 'second': index == 1, 'third': index == 2}"></i>
+                                    </h4>
+                                    <h5 class="score">
+                                        <b>Score: </b>{{ player.score }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="row mb-4" v-if="game.inProgress" v-bind:class="{ gameFinished: game.finished }">                        
                         <div class="col-xl-6 mb-4">
                             <div class="card py-2 px-3 shadow-sm bg-white">
                                 <div class="card-body">

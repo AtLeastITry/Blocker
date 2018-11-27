@@ -46,11 +46,7 @@ public abstract class BaseAgent implements IAgent {
     public abstract void triggerMove();
 
     public void makeMove() throws InterruptedException {
-        if (playerLost() || playerWon()) {
-            _client.close();
-        }
-
-        if (_game.playerTurn == _player.id) {
+        if (_game.playerTurn == _player.id && !_game.finished) {
             this.triggerMove();
             Thread.sleep(1000);
         }

@@ -52,7 +52,19 @@ var app = new Vue({
                     }
                 }
                 
-                result.sort((a, b) => (a.score > b.score) ? -1 : ((b.score > a.score) ? 1 : 0));
+                result.sort((a, b) => {
+                    if (a.score == b.score) {
+                        return b.id - a.id;
+                    }
+                    else if(a.score > b.score) {
+                        return -1
+                    }
+                    else if(b.score > a.score) {
+                        return 1
+                    }
+
+                    return 0
+                });
             }
 
             return result;
